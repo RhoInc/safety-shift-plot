@@ -660,6 +660,13 @@ class ReactShiftPlot extends React.Component {
 		super(props);
 		this.state = {};
 	}
+	componentDidMount(prevProps, prevState){
+		if(this.props.data.length){
+			//manually clear div and redraw
+			d3$1.select(`.chart-div.id-${this.props.id}`).selectAll('*').remove();
+			let chart = shiftPlot(`.chart-div.id-${this.props.id}`, this.props.settings).init(this.props.data);
+		}
+	}
 	componentDidUpdate(prevProps, prevState){
 		if(this.props.data.length){
 			//manually clear div and redraw

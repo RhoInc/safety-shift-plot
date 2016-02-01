@@ -5,7 +5,9 @@
   "main": "cf-shiftplot-renderer.common.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-watch": "node watcher"
+    "dev-watch": "node ./test/watcher",
+    "build": "rollup -c -i src/index.js",
+    "build-renderer": "node build-cf-renderer.js"
   },
   "author": "Rho, Inc.",
   "license": "ISC",

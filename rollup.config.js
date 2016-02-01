@@ -5,6 +5,6 @@ module.exports = {
     webcharts: 'webCharts',
     d3: 'd3'
   },
-  dest: 'dist/bundle.js',
-  moduleName: 'bundle'
+  dest: 'shiftplot.js',
+  moduleName: 'shiftPlot'
 }; 
