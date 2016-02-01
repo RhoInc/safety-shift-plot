@@ -2,7 +2,7 @@ var fs = require('fs');
 var rollup = require('rollup');
 var config = require('../rollup.config');
 
-fs.watch('src', function(event, filename) {
+fs.watch('../src', function(event, filename) {
 	console.log(event)
 	rollup.rollup({
 		entry: '../src/index.js'
