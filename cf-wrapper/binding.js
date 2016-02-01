@@ -72,14 +72,6 @@ export default {
 			source:"x_sort",
 			target:"x.sort"
 		},
-		// {
-		// 	source:"x_domain_start",
-		// 	target:"x.domain.0"
-		// },
-		// {
-		// 	source:"x_domain_end",
-		// 	target:"x.domain.1"
-		// },
 		{
 			source:"x_bin",
 			target:"x.bin"
