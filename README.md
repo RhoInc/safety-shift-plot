@@ -9,4 +9,4 @@ Shift Plot for Safety Explorer
 5. there are several build scripts:
   - to build the code for just the chart, run `npm run build`
   - to build the renderer for ChartFoundry, run `npm run build-renderer`
-  - to continually see your changes reflected without having to run a script every time, run `npm run dev-watch`
+  - to continually test your changes reflected without having to run a script every time, run `npm run dev-watch`; this will bundle up the files in **src** and save them in **test/bundle.js**, which can be used in **test/index.html** to display an example chart
