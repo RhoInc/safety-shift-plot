@@ -10,6 +10,7 @@ import onResize from './onResize';
 export default function shiftPlot(element, settings){
 	//merge user's settings with defaults
 	let mergedSettings = Object.assign({}, config, settings);
+	mergedSettings.measure = mergedSettings.start_value;
 	//create controls now
 	let controls = createControls(element, {location: 'top', inputs: controlInputs});
 	//create chart

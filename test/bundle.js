@@ -7,10 +7,10 @@ var shiftPlot = (function (webcharts,d3$1) {
       time_col: "VISITN",
       measure_col: "TEST",
       value_col: "STRESN",
+      start_value: null,
       measure: '',
       x_params: {visits: null, stat: "mean"},
       y_params: {visits: null, stat: "mean"},
-
       //Standard webcharts settings
       x:{
           column:"shiftx",
@@ -453,6 +453,7 @@ var shiftPlot = (function (webcharts,d3$1) {
   function shiftPlot(element, settings$$){
   	//merge user's settings with defaults
   	let mergedSettings = Object.assign({}, settings, settings$$);
+  	mergedSettings.measure = mergedSettings.start_value;
   	//create controls now
   	let controls = webcharts.createControls(element, {location: 'top', inputs: controlInputs});
   	//create chart

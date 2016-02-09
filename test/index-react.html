@@ -18,16 +18,25 @@
     <script src="react-bundle.js"></script>
     <script>
       var div = '#root';
-      var settings = {};
+      // var settings = {};
       var dataFile = 'analysis-test-results.csv';
       
       // var Renderer = new bundle();
       d3.csv(dataFile, function (data){
         var props = {
           id: 'id',
-          chartProperties: {}, 
+          chartProperties: {start_value: 'Bilirubin'}, 
           dataMappings: {},
-          template: { chartProperties: {}, dataMappings: {}, controls: [] },
+          template: { chartProperties: {
+  "start_value": {
+    "title": "Start Value",
+    "type": "list",
+    "required": false,
+    "configurable": true,
+    "options": "TEST",
+    "name": "start_value"
+  }
+}, dataMappings: {}, controls: [] },
           data: data
         };
         var Renderer = bundle;

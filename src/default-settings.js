@@ -4,10 +4,10 @@ const settings = {
     time_col: "VISITN",
     measure_col: "TEST",
     value_col: "STRESN",
+    start_value: null,
     measure: '',
     x_params: {visits: null, stat: "mean"},
     y_params: {visits: null, stat: "mean"},
-
     //Standard webcharts settings
     x:{
         column:"shiftx",

@@ -15,7 +15,7 @@
     <script src="bundle.js"></script>
     <script>
       var div = '#root';
-      var settings = {};
+      var settings = {start_value: 'Bicarbonate', x_params: {visits: ['-1']}, y_params: {visits: ['1']} };
       var dataFile = 'analysis-test-results.csv';
 
       d3.csv(dataFile, function (data){

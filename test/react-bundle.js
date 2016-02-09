@@ -1,5 +1,37 @@
-var shiftPlot = (function (webcharts,d3$1) {
+var bundle = (function (React,d3$1,webcharts) {
   'use strict';
+
+  React = 'default' in React ? React['default'] : React;
+
+  function stringAccessor(o, s, v) {
+  	//adapted from http://jsfiddle.net/alnitak/hEsys/
+      s = s.replace(/\[(\w+)\]/g, '.$1');
+      s = s.replace(/^\./, '');           
+      var a = s.split('.');
+      for (var i = 0, n = a.length; i < n; ++i) {
+          var k = a[i];
+          if (k in o) {
+              if(i == n-1 && v !== undefined)
+                  o[k] = v;
+              o = o[k];
+          } else {
+              return;
+          }
+      }
+      return o;
+  }
+
+  var binding = {
+  	dataMappings : [
+  		
+  	],
+  	chartProperties: [
+  		{
+  			source:"start_value",
+  			target:"start_value"
+  		}
+  	]
+  }
 
   const settings = {
       //Addition settings for this template
@@ -466,6 +498,118 @@ var shiftPlot = (function (webcharts,d3$1) {
   	return chart;
   }
 
-  return shiftPlot;
+  class ReactShiftPlot extends React.Component {
+  	constructor(props) {
+  		super(props);
+  		this.state = {};
+  	}
+  	componentDidMount(prevProps, prevState){
+  		if(this.props.data.length){
+  			//manually clear div and redraw
+  			d3$1.select(`.chart-div.id-${this.props.id}`).selectAll('*').remove();
+  			let chart = shiftPlot(`.chart-div.id-${this.props.id}`, this.props.settings).init(this.props.data);
+  		}
+  	}
+  	componentDidUpdate(prevProps, prevState){
+  		if(this.props.data.length){
+  			//manually clear div and redraw
+  			d3$1.select(`.chart-div.id-${this.props.id}`).selectAll('*').remove();
+  			let chart = shiftPlot(`.chart-div.id-${this.props.id}`, this.props.settings).init(this.props.data);
+  		}
+  	}
+  	render(){
+  		return (
+  			React.createElement('div', {
+  				key: this.props.id,
+  				className: `chart-div id-${this.props.id} ${!(this.props.data.length) ? 'loading' : ''}`,
+  				style: { minHeight: '1px', minWidth: '1px' }
+  			})
+  		);
+  	}
+  }
 
-}(webCharts,d3));
+  ReactShiftPlot.defaultProps = {data: [], controlInputs: [], id: 'id'}
+
+  function describeCode(props){
+    var settings = this.createSettings(props);
+
+    const code = `//uses d3 v.${d3$1.version}
+//uses webcharts v.${webcharts.version}
+
+var settings = ${JSON.stringify(settings, null, 2)};
+
+var myChart = shiftPlot(dataElement, settings);
+
+d3.csv(dataPath, function(error, csv) {
+  myChart.init(data);
+});
+    `;
+    return code;
+  }
+
+  class Renderer extends React.Component {
+    constructor(props) {
+      super(props);
+      this.binding = binding;
+      this.describeCode = describeCode.bind(this);
+      this.state = {data: [], settings: {}, template: {}, loadMsg: 'Loading...'};
+    }
+    createSettings(props) {
+      let shell = Object.assign({}, settings);
+
+      binding.dataMappings.forEach(e => {
+        let chartVal = stringAccessor(props.dataMappings, e.source);
+        if(chartVal ){
+          stringAccessor(shell, e.target, chartVal);
+        }
+        else{
+          let defaultVal = stringAccessor(props.template.dataMappings, e.source+'.default');
+          if(defaultVal && typeof defaultVal === 'string' && defaultVal.slice(0,3) === 'dm$'){
+            var pointerVal = stringAccessor(props.dataMappings, defaultVal.slice(3)) || null;
+            stringAccessor(shell, e.target, pointerVal);
+          }
+          else if(defaultVal){
+            stringAccessor(shell, e.target, defaultVal);
+          }
+          else{
+            stringAccessor(shell, e.target, null);
+          }
+        } 
+      });
+      binding.chartProperties.forEach(e => {
+        let chartVal = stringAccessor(props.chartProperties, e.source);
+
+        if(chartVal !== undefined){
+          stringAccessor(shell, e.target, chartVal);
+        }
+        else{
+          let defaultVal = stringAccessor(props.template.chartProperties, e.source+'.default');
+          stringAccessor(shell, e.target, defaultVal);
+        } 
+      });
+
+      return shell;
+    }
+    componentWillMount() {
+      var settings = this.createSettings(this.props);
+      this.setState({settings: settings});
+    }
+    componentWillReceiveProps(nextProps){
+      var settings = this.createSettings(nextProps);
+      this.setState({settings: settings});
+    }
+    render() {
+      return (
+        React.createElement(ReactShiftPlot, {
+          id: this.props.id,
+          settings: this.state.settings, 
+          controlInputs: this.props.template.controls,
+          data: this.props.data
+        })
+      );
+    }
+  }
+
+  return Renderer;
+
+}(React,d3,webCharts));
