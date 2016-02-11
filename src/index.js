@@ -6,6 +6,7 @@ import onLayout from './onLayout';
 import transformData from './preprocessData';
 import onDraw from './onDraw';
 import onResize from './onResize';
+import './object-assign';
 
 export default function shiftPlot(element, settings){
 	//merge user's settings with defaults
