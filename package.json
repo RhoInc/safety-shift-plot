@@ -1,6 +1,6 @@
 {
-  "name": "se-shift-plot",
-  "version": "0.0.0",
+  "name": "safety-shift-plot",
+  "version": "1.0.1",
   "description": "shift plot for safety explorer",
   "main": "renderer.common.js",
   "scripts": {
