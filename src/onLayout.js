@@ -1,5 +1,5 @@
 import { createTable } from 'webcharts';
-import { tableSettings } from './default-settings';
+import { tableSettings } from './table-settings';
 import transformData from './preprocessData';
 
 export default function onLayout(){

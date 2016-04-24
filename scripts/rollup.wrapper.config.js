@@ -1,10 +1,9 @@
 module.exports = {
-  entry: './src/index.js',
+  entry: './src/wrapper.js',
   format: 'iife',
   globals: {
     webcharts: 'webCharts',
     d3: 'd3'
   },
-  // dest: 'index.js',
-  moduleName: 'shiftPlot'
+  moduleName: 'safetyShiftPlot'
 }; 
