@@ -10,7 +10,7 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		measure_col: "TEST",
 		value_col: "STRESN",
 		start_value: null,
-		measure: '',
+		measure: null, //set in syncSettings()
 		x_params: { visits: null, stat: "mean" },
 		y_params: { visits: null, stat: "mean" },
 
@@ -18,7 +18,6 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		x: {
 			column: "shiftx",
 			type: "linear",
-			// behavior:"flex",
 			label: "Baseline Value",
 			format: "0.2f"
 		},
@@ -59,6 +58,12 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	function syncControlInputs(controlInputs, settings) {
 		return controlInputs;
 	}
+
+	// Default Settings for custom linked table
+	var tableSettings = {
+		cols: ["key", "shiftx", "shifty"],
+		headers: ["ID", "Start Value", "End Value"]
+	};
 
 	function preprocessData(rawData) {
 		var config = this.config;
@@ -179,11 +184,6 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		//create initial shift plot data
 		this.super_raw_data = rawData;
 		this.raw_data = preprocessData.call(this, rawData);
-	};
-
-	var tableSettings = {
-		cols: ["key", "shiftx", "shifty"],
-		headers: ["ID", "Start Value", "End Value"]
 	};
 
 	function onLayout() {

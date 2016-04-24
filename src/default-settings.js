@@ -5,7 +5,7 @@ const settings = {
     measure_col: "TEST",
     value_col: "STRESN",
     start_value: null,
-    measure: '',
+    measure: null, //set in syncSettings() 
     x_params: {visits: null, stat: "mean"},
     y_params: {visits: null, stat: "mean"},
    
@@ -13,7 +13,6 @@ const settings = {
      x:{
         column:"shiftx",
         type:"linear",
-        // behavior:"flex",
         label:"Baseline Value",
         format:"0.2f"
     },
@@ -60,5 +59,11 @@ export const controlInputs = [
 export function syncControlInputs(controlInputs, settings){
     return controlInputs
 }
+
+// Default Settings for custom linked table
+export const tableSettings = {
+    cols: ["key","shiftx","shifty"],
+    headers: ["ID","Start Value", "End Value"]
+};
 
 export default settings
