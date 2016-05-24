@@ -4,10 +4,8 @@
   "description": "Chart showing change in lab measures, vital signs and other related measures during the course of a clinical trial.",
   "main": ".build/safetyShiftPlot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-watch": "cd test && node watcher.js",
     "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/safetyShiftPlot.js",
-    "build-react": "rollup -c ./scripts/rollup.react.config.js | babel > ./build/safetyShiftPlot-react.js"
+    "build-chf": "rollup -c ./scripts/rollup.chf.config.js > ./build/safetyShiftPlot-chf.js"
   },
   "author": "Rho Inc",
   "license": "MIT",
