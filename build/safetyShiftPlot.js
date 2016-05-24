@@ -446,7 +446,7 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		})();
 	}
 
-	function yourFunctionNameHere(element, settings$$) {
+	function safetyShiftPlot(element, settings$$) {
 
 		//merge user's settings with defaults
 		var mergedSettings = Object.assign({}, settings, settings$$);
@@ -469,6 +469,6 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		return chart;
 	}
 
-	return yourFunctionNameHere;
+	return safetyShiftPlot;
 })(webCharts, d3);
 
