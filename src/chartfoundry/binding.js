@@ -1,6 +1,24 @@
 
 export default {
 	dataMappings : [
+		// custom variables
+		{
+			source:"id_col",
+			target:"id_col"
+		},
+ 		{
+			source:"time_col",
+			target:"time_col"
+		},
+		{
+			source:"measure_col",
+			target:"measure_col"
+		},
+		{
+			source:"value_col",
+			target:"value_col"
+		},
+
 		{
 			source:"x",
 			target:"x.column"
@@ -51,6 +69,32 @@ export default {
 		}
 	],
 	chartProperties: [
+		//custom values
+		{
+			source:"start_value",
+			target:"start_value"
+		},
+		{
+			source:"measure",
+			target:"measure"
+		},
+		{	
+			source:"x_params_stat",
+			target:"x_params.stat"
+		},
+		{	
+			source:"x_params_visits",
+			target:"x_params.visits"
+		},
+		{	
+			source:"y_params_stat",
+			target:"y_params.stat"
+		},
+		{	
+			source:"y_params_visits",
+			target:"y_params.visits"
+		},
+    	//webcharts defaults
 		{
 			source:"date_format",
 			target:"date_format"
