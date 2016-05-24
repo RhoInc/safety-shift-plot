@@ -8,7 +8,7 @@ import onDraw from './onDraw';
 import onResize from './onResize';
 import './util/object-assign';
 
-export default function yourFunctionNameHere(element, settings){
+export default function safetyShiftPlot(element, settings){
 	
 	//merge user's settings with defaults
 	let mergedSettings = Object.assign({}, config, settings);
