@@ -2,7 +2,7 @@
   "name": "safety-shift-plot",
   "version": "1.1.0",
   "description": "Chart showing change in lab measures, vital signs and other related measures during the course of a clinical trial.",
-  "main": "./build/safetyShiftPlot.js",
+  "main": "./build/safetyShiftPlot-chf.js",
   "scripts": {
     "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/safetyShiftPlot.js",
     "build-chf": "rollup -c ./scripts/rollup.chf.config.js > ./build/safetyShiftPlot-chf.js"
