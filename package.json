@@ -1,16 +1,14 @@
 {
   "name": "safety-shift-plot",
-  "version": "1.0.1",
-  "description": "shift plot for safety explorer",
-  "main": "renderer.common.js",
+  "version": "1.1.0",
+  "description": "Chart showing change in lab measures, vital signs and other related measures during the course of a clinical trial.",
+  "main": "./build/safetyShiftPlot-chf.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-watch": "cd test && node watcher.js",
-    "build": "rollup -c | babel > index.js",
-    "build-renderer": "rollup -c renderer.rollup.config.js | babel > renderer.common.js"
+    "build": "rollup -c ./scripts/rollup.wrapper.config.js | babel > ./build/safetyShiftPlot.js",
+    "build-chf": "rollup -c ./scripts/rollup.chf.config.js > ./build/safetyShiftPlot-chf.js"
   },
   "author": "Rho, Inc.",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "d3": "^3.5.14",
     "react": "^0.14.7",
@@ -18,6 +16,8 @@
   },
   "devDependencies": {
     "babel": "^5.8.35",
-    "rollup": "^0.25.3"
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "rollup": "^0.25.1",
+    "rollup-plugin-babel": "^2.4.0"
   }
 }

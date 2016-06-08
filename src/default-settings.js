@@ -1,18 +1,18 @@
 const settings = {
     //Addition settings for this template
-    id_col: "USUBJID",
+ 	id_col: "USUBJID",
     time_col: "VISITN",
     measure_col: "TEST",
     value_col: "STRESN",
     start_value: null,
-    measure: '',
+    measure: null, //set in syncSettings() 
     x_params: {visits: null, stat: "mean"},
     y_params: {visits: null, stat: "mean"},
+   
     //Standard webcharts settings
-    x:{
+     x:{
         column:"shiftx",
         type:"linear",
-        // behavior:"flex",
         label:"Baseline Value",
         format:"0.2f"
     },
@@ -42,12 +42,25 @@ const settings = {
     aspect: 1
 };
 
-export const controlInputs = [
-    {type: "dropdown", values: [], label: "Measure", option: "measure", require: true},
-    {type: "dropdown", values: [], label: "Baseline visit(s)", option:"x_params_visits", require: true, multiple:true},
-    {type: "dropdown", values: [], label: "Comparison visit(s)", option: "y_params_visits", require: true, multiple:true}
+// Replicate settings in multiple places in the settings object
+export function syncSettings(settings){
+	settings.measure = settings.start_value;
+    return settings;
+}
+
+// Default Control objects
+export const controlInputs = [ 
+  {type: "dropdown", values: [], label: "Measure", option: "measure", require: true},
+  {type: "dropdown", values: [], label: "Baseline visit(s)", option:"x_params_visits", require: true, multiple:true},
+  {type: "dropdown", values: [], label: "Comparison visit(s)", option: "y_params_visits", require: true, multiple:true}
 ];
 
+// Map values from settings to control inputs
+export function syncControlInputs(controlInputs, settings){
+    return controlInputs
+}
+
+// Default Settings for custom linked table
 export const tableSettings = {
     cols: ["key","shiftx","shifty"],
     headers: ["ID","Start Value", "End Value"]

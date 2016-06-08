@@ -1,6 +1,6 @@
 "use strict";
 
-var shiftPlot = (function (webcharts, d3$1) {
+var safetyShiftPlot = (function (webcharts, d3$1) {
 	'use strict';
 
 	var settings = {
@@ -10,14 +10,14 @@ var shiftPlot = (function (webcharts, d3$1) {
 		measure_col: "TEST",
 		value_col: "STRESN",
 		start_value: null,
-		measure: '',
+		measure: null, //set in syncSettings()
 		x_params: { visits: null, stat: "mean" },
 		y_params: { visits: null, stat: "mean" },
+
 		//Standard webcharts settings
 		x: {
 			column: "shiftx",
 			type: "linear",
-			// behavior:"flex",
 			label: "Baseline Value",
 			format: "0.2f"
 		},
@@ -45,8 +45,21 @@ var shiftPlot = (function (webcharts, d3$1) {
 		aspect: 1
 	};
 
+	// Replicate settings in multiple places in the settings object
+	function syncSettings(settings) {
+		settings.measure = settings.start_value;
+		return settings;
+	}
+
+	// Default Control objects
 	var controlInputs = [{ type: "dropdown", values: [], label: "Measure", option: "measure", require: true }, { type: "dropdown", values: [], label: "Baseline visit(s)", option: "x_params_visits", require: true, multiple: true }, { type: "dropdown", values: [], label: "Comparison visit(s)", option: "y_params_visits", require: true, multiple: true }];
 
+	// Map values from settings to control inputs
+	function syncControlInputs(controlInputs, settings) {
+		return controlInputs;
+	}
+
+	// Default Settings for custom linked table
 	var tableSettings = {
 		cols: ["key", "shiftx", "shifty"],
 		headers: ["ID", "Start Value", "End Value"]
@@ -247,6 +260,8 @@ var shiftPlot = (function (webcharts, d3$1) {
 		this.detailTable = webcharts.createTable(this.wrap.node(), tableSettings).init([]);
 	}
 
+	function onDataTransform() {}
+
 	function onDraw() {}
 
 	function addBoxplot(svg, results, height, width, domain, boxPlotWidth, boxColor, boxInsideColor, format, horizontal) {
@@ -431,22 +446,29 @@ var shiftPlot = (function (webcharts, d3$1) {
 		})();
 	}
 
-	function shiftPlot(element, settings$$) {
+	function safetyShiftPlot(element, settings$$) {
+
 		//merge user's settings with defaults
 		var mergedSettings = Object.assign({}, settings, settings$$);
-		mergedSettings.measure = mergedSettings.start_value;
-		//create controls now
+
+		//keep settings in sync with the data mappings
+		mergedSettings = syncSettings(mergedSettings);
+
+		//keep control inputs in sync and create controls object (if needed)
+		var syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
 		var controls = webcharts.createControls(element, { location: 'top', inputs: controlInputs });
+
 		//create chart
 		var chart = webcharts.createChart(element, mergedSettings, controls);
 		chart.on('init', onInit);
 		chart.on('layout', onLayout);
+		chart.on('datatransform', onDataTransform);
 		chart.on('draw', onDraw);
 		chart.on('resize', onResize);
 
 		return chart;
 	}
 
-	return shiftPlot;
+	return safetyShiftPlot;
 })(webCharts, d3);
 
