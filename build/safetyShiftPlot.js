@@ -1,16 +1,14 @@
-"use strict";
-
-var safetyShiftPlot = (function (webcharts, d3$1) {
+var safetyShiftPlot = function (webcharts, d3$1) {
 	'use strict';
 
-	var settings = {
+	const settings = {
 		//Addition settings for this template
 		id_col: "USUBJID",
 		time_col: "VISITN",
 		measure_col: "TEST",
 		value_col: "STRESN",
 		start_value: null,
-		measure: null, //set in syncSettings()
+		measure: null, //set in syncSettings() 
 		x_params: { visits: null, stat: "mean" },
 		y_params: { visits: null, stat: "mean" },
 
@@ -52,7 +50,7 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	}
 
 	// Default Control objects
-	var controlInputs = [{ type: "dropdown", values: [], label: "Measure", option: "measure", require: true }, { type: "dropdown", values: [], label: "Baseline visit(s)", option: "x_params_visits", require: true, multiple: true }, { type: "dropdown", values: [], label: "Comparison visit(s)", option: "y_params_visits", require: true, multiple: true }];
+	const controlInputs = [{ type: "dropdown", values: [], label: "Measure", option: "measure", require: true }, { type: "dropdown", values: [], label: "Baseline visit(s)", option: "x_params_visits", require: true, multiple: true }, { type: "dropdown", values: [], label: "Comparison visit(s)", option: "y_params_visits", require: true, multiple: true }];
 
 	// Map values from settings to control inputs
 	function syncControlInputs(controlInputs, settings) {
@@ -60,7 +58,7 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	}
 
 	// Default Settings for custom linked table
-	var tableSettings = {
+	const tableSettings = {
 		cols: ["key", "shiftx", "shifty"],
 		headers: ["ID", "Start Value", "End Value"]
 	};
@@ -150,7 +148,7 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	}
 
 	function onInit() {
-		var rawData = this.raw_data.slice();
+		const rawData = this.raw_data.slice();
 		var config = this.config;
 
 		rawData.forEach(function (d) {
@@ -187,67 +185,49 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	};
 
 	function onLayout() {
-		var _this = this;
-
 		//update the dropdown options
-		this.controls.config.inputs.filter(function (f) {
-			return f.option === "measure";
-		})[0].values = this.config.measures;
+		this.controls.config.inputs.filter(f => f.option === "measure")[0].values = this.config.measures;
 
-		var baselineFilter = this.controls.config.inputs.filter(function (f) {
-			return f.option === "x_params_visits";
-		})[0];
+		var baselineFilter = this.controls.config.inputs.filter(f => f.option === "x_params_visits")[0];
 
 		baselineFilter.values = this.config.visits;
 
-		this.controls.config.inputs.filter(function (f) {
-			return f.option === "y_params_visits";
-		})[0].values = this.config.visits;
+		this.controls.config.inputs.filter(f => f.option === "y_params_visits")[0].values = this.config.visits;
 
 		//force controls to be redrawn
 		this.controls.layout();
 
 		//customize measure controls
-		var measureSelect = this.controls.wrap.selectAll(".control-group").filter(function (f) {
-			return f.option === "measure";
-		}).select("select");
+		var measureSelect = this.controls.wrap.selectAll(".control-group").filter(f => f.option === "measure").select("select");
 
-		measureSelect.on("change", function (d) {
-			var value = measureSelect.select("option:checked").property('text');
-			_this.config.measure = value;
-			var nextRawData = preprocessData.call(_this, _this.super_raw_data);
-			_this.draw(nextRawData);
+		measureSelect.on("change", d => {
+			const value = measureSelect.select("option:checked").property('text');
+			this.config.measure = value;
+			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.draw(nextRawData);
 		});
 
 		//customize baseline control
-		var baselineSelect = this.controls.wrap.selectAll(".control-group").filter(function (f) {
-			return f.option === "x_params_visits";
-		}).select("select");
+		var baselineSelect = this.controls.wrap.selectAll(".control-group").filter(f => f.option === "x_params_visits").select("select");
 		//set start values
-		baselineSelect.selectAll("option").filter(function (f) {
-			return _this.config.x_params.visits.indexOf(f) > -1;
-		}).attr("selected", "selected");
-		baselineSelect.on("change", function (d) {
-			var values = baselineSelect.selectAll("option:checked").data();
-			_this.config.x_params.visits = values;
-			var nextRawData = preprocessData.call(_this, _this.super_raw_data);
-			_this.draw(nextRawData);
+		baselineSelect.selectAll("option").filter(f => this.config.x_params.visits.indexOf(f) > -1).attr("selected", "selected");
+		baselineSelect.on("change", d => {
+			const values = baselineSelect.selectAll("option:checked").data();
+			this.config.x_params.visits = values;
+			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.draw(nextRawData);
 		});
 
 		//customize comparison control
-		var comparisonSelect = this.controls.wrap.selectAll(".control-group").filter(function (f) {
-			return f.option === "y_params_visits";
-		}).select("select");
+		var comparisonSelect = this.controls.wrap.selectAll(".control-group").filter(f => f.option === "y_params_visits").select("select");
 		//set start values
-		comparisonSelect.selectAll("option").filter(function (f) {
-			return _this.config.y_params.visits.indexOf(f) > -1;
-		}).attr("selected", "selected");
+		comparisonSelect.selectAll("option").filter(f => this.config.y_params.visits.indexOf(f) > -1).attr("selected", "selected");
 
-		comparisonSelect.on("change", function (d) {
-			var values = comparisonSelect.selectAll("option:checked").data();
-			_this.config.y_params.visits = values;
-			var nextRawData = preprocessData.call(_this, _this.super_raw_data);
-			_this.draw(nextRawData);
+		comparisonSelect.on("change", d => {
+			const values = comparisonSelect.selectAll("option:checked").data();
+			this.config.y_params.visits = values;
+			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.draw(nextRawData);
 		});
 
 		//add p for possible visits
@@ -331,9 +311,7 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	}
 
 	function onResize() {
-		var _this2 = this;
-
-		var decim = d3$1.format(".2f");
+		const decim = d3$1.format(".2f");
 		// Draw box plots
 		this.svg.selectAll("g.boxplot").remove();
 
@@ -352,10 +330,10 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		var xbox = this.svg.append("g").attr("class", "xMargin");
 		addBoxplot(xbox, //svg element
 		xValues, //values
-		1, //height
+		1, //height 
 		this.plot_width, //width
 		this.x_dom, //domain
-		10, //box plot width
+		10, //box plot width 
 		"#bbb", //box color
 		"white", //detail color
 		"0.2f", //format
@@ -364,13 +342,9 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 		xbox.select("g.boxplot").attr("transform", "translate(0," + -(this.config.margin.top / 2) + ")");
 
 		//get list of visits
-		var possibleVisits = d3$1.set(this.super_raw_data.filter(function (f) {
-			return f[_this2.config.measure_col] === _this2.config.measure;
-		}).map(function (d) {
-			return d[_this2.config.time_col];
-		})).values().sort(webcharts.dataOps.naturalSorter);
+		var possibleVisits = d3$1.set(this.super_raw_data.filter(f => f[this.config.measure_col] === this.config.measure).map(d => d[this.config.time_col])).values().sort(webcharts.dataOps.naturalSorter);
 
-		this.wrap.select('.possible-visits').text("This measure collected at visits " + possibleVisits.join(', '));
+		this.wrap.select('.possible-visits').text(`This measure collected at visits ${ possibleVisits.join(', ') }`);
 
 		//Expand the domains a bit so that points on the edge are brushable
 		this.x_dom[0] = this.x_dom[0] < 0 ? this.x_dom[0] * 1.01 : this.x_dom[0] * 0.99;
@@ -383,23 +357,19 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 
 		//brushing
 		function brushed() {
-			var _this3 = this;
-
 			var extent = brush.extent();
 			var points = this.svg.selectAll("g.point").classed("selected", false);
 
 			points.select("circle").attr("fill-opacity", 0);
 
-			var selected_points = points.filter(function (d) {
-				var cx = _this3.x(+d.values.x);
-				var cy = _this3.y(+d.values.y);
+			var selected_points = points.filter(d => {
+				var cx = this.x(+d.values.x);
+				var cy = this.y(+d.values.y);
 				return extent[0][0] <= cx && cx <= extent[1][0] && extent[0][1] <= cy && cy <= extent[1][1];
 			}).classed("selected", true).select("circle").attr("fill-opacity", this.config.marks[0].attributes['fill-opacity']);
 
 			//redraw the table with the new data
-			var selected_data = selected_points.data().map(function (m) {
-				return m.values.raw[0];
-			});
+			var selected_data = selected_points.data().map(m => m.values.raw[0]);
 			this.detailTable.draw(selected_data);
 
 			//footnote
@@ -420,12 +390,23 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 			'stroke': '#ccc',
 			'fill-opacity': 0.1
 		});
+
+		//add an equality line
+		var chart = this;
+		console.log(chart.x(chart.x.domain()[0]));
+		var overallMin = d3.min([chart.x.domain()[0], chart.y.domain()[0]]);
+		var overallMax = d3.max([chart.x.domain()[1], chart.y.domain()[1]]);
+
+		console.log(overallMax + "-" + overallMin);
+		this.svg.select("line.identity").remove();
+		this.svg.append("line").attr("x1", chart.x(overallMin)).attr("x2", chart.x(overallMax)).attr("y1", chart.y(overallMin)).attr("y2", chart.y(overallMax)).attr("stroke", "black").attr("clip-path", "URL(#1)").attr("class", "identity");
 	}
 
 	if (typeof Object.assign != 'function') {
 		(function () {
 			Object.assign = function (target) {
 				'use strict';
+
 				if (target === undefined || target === null) {
 					throw new TypeError('Cannot convert undefined or null to object');
 				}
@@ -449,17 +430,17 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	function safetyShiftPlot(element, settings$$) {
 
 		//merge user's settings with defaults
-		var mergedSettings = Object.assign({}, settings, settings$$);
+		let mergedSettings = Object.assign({}, settings, settings$$);
 
 		//keep settings in sync with the data mappings
 		mergedSettings = syncSettings(mergedSettings);
 
 		//keep control inputs in sync and create controls object (if needed)
-		var syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
-		var controls = webcharts.createControls(element, { location: 'top', inputs: controlInputs });
+		let syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
+		let controls = webcharts.createControls(element, { location: 'top', inputs: controlInputs });
 
 		//create chart
-		var chart = webcharts.createChart(element, mergedSettings, controls);
+		let chart = webcharts.createChart(element, mergedSettings, controls);
 		chart.on('init', onInit);
 		chart.on('layout', onLayout);
 		chart.on('datatransform', onDataTransform);
@@ -470,5 +451,5 @@ var safetyShiftPlot = (function (webcharts, d3$1) {
 	}
 
 	return safetyShiftPlot;
-})(webCharts, d3);
+}(webCharts, d3);
 
