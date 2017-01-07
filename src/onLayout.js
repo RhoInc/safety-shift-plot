@@ -66,4 +66,14 @@ export default function onLayout(){
     
     //create empty table
     this.detailTable = createTable(this.wrap.node(), tableSettings).init([]);
+
+  //Add div for participant counts.
+    this.wrap.select('.wc-controls').append('span')
+        .classed('annote', true)
+        .style('float', 'right');
+
+  //Add div for participant counts.
+    this.controls.wrap
+        .append('p')
+        .classed('annote', true);
 }
