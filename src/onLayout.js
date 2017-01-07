@@ -24,6 +24,8 @@ export default function onLayout(){
         const value = measureSelect.select("option:checked").property('text');
         this.config.measure = value;
         const nextRawData = transformData.call(this, this.super_raw_data);
+        this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+        this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
         this.draw(nextRawData);
     });
 
@@ -39,6 +41,8 @@ export default function onLayout(){
         const values = baselineSelect.selectAll("option:checked").data();
         this.config.x_params.visits = values;
         const nextRawData = transformData.call(this, this.super_raw_data);
+        this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+        this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
         this.draw(nextRawData);
     });
 
@@ -55,6 +59,8 @@ export default function onLayout(){
         const values = comparisonSelect.selectAll("option:checked").data();
         this.config.y_params.visits = values;
         const nextRawData = transformData.call(this, this.super_raw_data);
+        this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+        this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
         this.draw(nextRawData);
     });
 
