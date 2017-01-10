@@ -104,7 +104,6 @@ export default function onResize(){
     //add an equality line
     var chart = this;
     
-    console.log(chart.x(chart.x.domain()[0]))
     var overallMin = d3.min([
         chart.x.domain()[0],
         chart.y.domain()[0]
@@ -114,7 +113,6 @@ export default function onResize(){
         chart.y.domain()[1]
     ])
 
-    console.log(overallMax + "-"+overallMin)
     this.svg.select("line.identity").remove()
     this.svg.append("line")
     .attr("x1",chart.x(overallMin))
@@ -124,4 +122,12 @@ export default function onResize(){
     .attr("stroke","black")
     .attr("clip-path","URL(#1)")
     .attr("class","identity")
+
+  //Add tooltip to axis labels listing selected visits.
+    this.svg.selectAll('.x.axis .axis-title')
+        .append('title')
+        .html('Baseline visit(s):<br>&nbsp;&nbsp;&nbsp;&nbsp;' + this.config.x_params.visits.join('<br>&nbsp;&nbsp;&nbsp;&nbsp;'));
+    this.svg.selectAll('.y.axis .axis-title')
+        .append('title')
+        .html('Comparison visit(s):<br>&nbsp;&nbsp;&nbsp;&nbsp;' + this.config.y_params.visits.join('<br>&nbsp;&nbsp;&nbsp;&nbsp;'));
 }
