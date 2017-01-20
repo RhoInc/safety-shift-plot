@@ -37,5 +37,6 @@ export default function onInit(){
     //create initial shift plot data
     this.super_raw_data = rawData;
     this.raw_data = transformData.call(this, rawData);
-
+    this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
+    this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 };

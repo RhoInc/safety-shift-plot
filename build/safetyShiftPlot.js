@@ -11,6 +11,7 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 		measure: null, //set in syncSettings() 
 		x_params: { visits: null, stat: "mean" },
 		y_params: { visits: null, stat: "mean" },
+		filters: null,
 
 		//Standard webcharts settings
 		x: {
@@ -54,6 +55,13 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 
 	// Map values from settings to control inputs
 	function syncControlInputs(controlInputs, settings) {
+		//Define filter objects.
+		settings.filters.reverse().forEach(function (d, i) {
+			d.type = 'subsetter';
+			d.value_col = d.value_col;
+			d.label = d.label ? d.label : d.value_col;
+		});
+
 		return controlInputs;
 	}
 
@@ -130,15 +138,6 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			if (!match[0]) config.details.push({ col: config.color_by, label: config.color_by });
 		}
 
-		if (this.filters) {
-			this.filters.forEach(function (e) {
-				var match = config.details.filter(function (f) {
-					return f.col === e.col;
-				});
-				if (!match[0]) config.details.push({ col: e.col, label: e.col });
-			});
-		}
-
 		var test_data = nested;
 		test_data.forEach(getXY);
 		if (config.change) test_data.forEach(getChange);
@@ -182,6 +181,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 		//create initial shift plot data
 		this.super_raw_data = rawData;
 		this.raw_data = preprocessData.call(this, rawData);
+		this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
+		this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 	};
 
 	function onLayout() {
@@ -197,6 +198,40 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 		//force controls to be redrawn
 		this.controls.layout();
 
+		//Create custom filters.
+		this.config.filters.forEach(filter => {
+			//Capture distinct [filter.value_col] values.
+			filter.values = d3.set(this.super_raw_data.map(d => d[filter.value_col])).values();
+			filter.value = 'All';
+
+			//Attach filter to the DOM.
+			const controlGroup = this.controls.wrap.append('div').classed('control-group', true).datum(filter);
+			controlGroup.append('span').classed('control-label', true).text(filter.label);
+			const changer = controlGroup.append('select').classed('changer', true);
+
+			//Attach distinct [filter.value_col] values as select options.
+			changer.selectAll('option').data(['All'].concat(filter.values)).enter().append('option').text(d => d);
+
+			//Define dropdown event listener.
+			changer.on('change', d => {
+				//Set [filter.value] to dropdown selection.
+				filter.value = changer.select('option:checked').property('text');
+
+				//Filter raw data on all filter selections.
+				this.filteredData = this.super_raw_data.filter(di => {
+					let filtered = false;
+					this.config.filters.forEach(dii => {
+						filtered = filtered === false && dii.value !== 'All' ? di[dii.value_col] !== dii.value : filtered;
+					});
+					return !filtered;
+				});
+
+				//Derive chart data from filtered data.
+				const nextRawData = preprocessData.call(this, this.filteredData);
+				this.draw(nextRawData);
+			});
+		});
+
 		//customize measure controls
 		var measureSelect = this.controls.wrap.selectAll(".control-group").filter(f => f.option === "measure").select("select");
 
@@ -204,6 +239,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			const value = measureSelect.select("option:checked").property('text');
 			this.config.measure = value;
 			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+			this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
 			this.draw(nextRawData);
 		});
 
@@ -215,6 +252,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			const values = baselineSelect.selectAll("option:checked").data();
 			this.config.x_params.visits = values;
 			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+			this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
 			this.draw(nextRawData);
 		});
 
@@ -227,6 +266,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			const values = comparisonSelect.selectAll("option:checked").data();
 			this.config.y_params.visits = values;
 			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+			this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
 			this.draw(nextRawData);
 		});
 
@@ -474,7 +515,7 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 
 		//keep control inputs in sync and create controls object (if needed)
 		let syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
-		let controls = webcharts.createControls(element, { location: 'top', inputs: controlInputs });
+		let controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
 
 		//create chart
 		let chart = webcharts.createChart(element, mergedSettings, controls);
