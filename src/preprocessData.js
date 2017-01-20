@@ -59,14 +59,6 @@ export default function preprocessData(rawData) {
             config.details.push({col: config.color_by, label: config.color_by})
     }
 
-    if(this.filters){
-        this.filters.forEach(function(e){
-            var match = config.details.filter(function(f){return f.col === e.col});
-            if(!match[0])
-                config.details.push({col: e.col, label: e.col})
-        })
-    }
-
     var test_data = nested;
     test_data.forEach(getXY);
     if(config.change)

@@ -8,6 +8,7 @@ const settings = {
     measure: null, //set in syncSettings() 
     x_params: {visits: null, stat: "mean"},
     y_params: {visits: null, stat: "mean"},
+    filters: null,
    
     //Standard webcharts settings
      x:{
@@ -57,6 +58,13 @@ export const controlInputs = [
 
 // Map values from settings to control inputs
 export function syncControlInputs(controlInputs, settings){
+  //Define filter objects.
+    settings.filters.reverse().forEach(function(d, i) {
+        d.type = 'subsetter';
+        d.value_col = d.value_col;
+        d.label = d.label ? d.label : d.value_col;
+    });
+
     return controlInputs
 }
 
