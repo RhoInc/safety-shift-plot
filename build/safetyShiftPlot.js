@@ -181,6 +181,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 		//create initial shift plot data
 		this.super_raw_data = rawData;
 		this.raw_data = preprocessData.call(this, rawData);
+		this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
+		this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 	};
 
 	function onLayout() {
@@ -237,6 +239,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			const value = measureSelect.select("option:checked").property('text');
 			this.config.measure = value;
 			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+			this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
 			this.draw(nextRawData);
 		});
 
@@ -248,6 +252,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			const values = baselineSelect.selectAll("option:checked").data();
 			this.config.x_params.visits = values;
 			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+			this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
 			this.draw(nextRawData);
 		});
 
@@ -260,6 +266,8 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 			const values = comparisonSelect.selectAll("option:checked").data();
 			this.config.y_params.visits = values;
 			const nextRawData = preprocessData.call(this, this.super_raw_data);
+			this.config.x.domain = d3.extent(nextRawData.map(d => d.shiftx));
+			this.config.y.domain = d3.extent(nextRawData.map(d => d.shifty));
 			this.draw(nextRawData);
 		});
 
