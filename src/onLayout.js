@@ -15,6 +15,57 @@ export default function onLayout(){
     //force controls to be redrawn
     this.controls.layout();
 
+  //Create custom filters.
+    this.config.filters.forEach(filter => {
+      //Capture distinct [filter.value_col] values.
+        filter.values = d3.set(this.super_raw_data.map(d => d[filter.value_col])).values();
+        filter.value = 'All';
+
+      //Attach filter to the DOM.
+        const controlGroup = this.controls.wrap
+            .append('div')
+            .classed('control-group', true)
+            .datum(filter);
+        controlGroup
+            .append('span')
+            .classed('control-label', true)
+            .text(filter.label);
+        const changer = controlGroup
+            .append('select')
+            .classed('changer', true);
+
+      //Attach distinct [filter.value_col] values as select options.
+        changer
+            .selectAll('option')
+            .data(['All'].concat(filter.values))
+            .enter()
+            .append('option')
+            .text(d => d);
+
+      //Define dropdown event listener.
+        changer
+            .on('change', d => {
+              //Set [filter.value] to dropdown selection.
+                filter.value = changer.select('option:checked').property('text');
+
+              //Filter raw data on all filter selections.
+                this.filteredData = this.super_raw_data
+                    .filter(di => {
+                        let filtered = false;
+                        this.config.filters
+                            .forEach(dii => {
+                                filtered = filtered === false && dii.value !== 'All'
+                                    ? di[dii.value_col] !== dii.value
+                                    : filtered; });
+                        return !filtered;
+                    });
+
+              //Derive chart data from filtered data.
+                const nextRawData = transformData.call(this, this.filteredData);
+                this.draw(nextRawData);
+            });
+    });
+
     //customize measure controls
     var measureSelect = this.controls.wrap.selectAll(".control-group")
         .filter(f => f.option === "measure")
