@@ -5,15 +5,14 @@
   Inputs:
 
     chart - a webcharts chart object
-    id_col - a column name in the raw data set (chart.raw_data) representing the observation of interest
     id_unit - a text string to label the units in the annotation (default = 'participants')
     selector - css selector for the annotation
 \------------------------------------------------------------------------------------------------*/
 
-export default function(chart, id_col, selector, id_unit) {
+export default function updateSubjectCount(chart, selector, id_unit) {
   //count the number of unique ids in the data set
     const totalObs = d3.set(chart.super_raw_data
-        .map(d => d[id_col])).values().length;
+        .map(d => d[chart.config.id_col])).values().length;
 
   //count the number of unique ids in the current chart and calculate the percentage
     const currentObs = chart.filtered_data

@@ -2,7 +2,7 @@ import { set, svg, scale, format } from 'd3';
 import { dataOps } from 'webcharts';
 import addBoxplot from './util/addBoxplot';
 
-export default function onResize(){
+export default function onResize() {
     const decim = format(".2f");
     // Draw box plots
     this.svg.selectAll("g.boxplot").remove()

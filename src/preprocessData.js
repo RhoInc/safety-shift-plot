@@ -1,7 +1,7 @@
 import { nest, sum, merge, min, max } from 'd3';
 
 export default function preprocessData(rawData) {
-	var config = this.config;
+    var config = this.config;
 
     var nested = nest()
         .key(function(d){return d[config.id_col]})

@@ -1,6 +1,6 @@
 import { set } from 'd3';
 import { dataOps } from 'webcharts';
-import transformData from './preprocessData';
+import preprocessData from './preprocessData';
 
 export default function onInit(){
     const rawData = this.raw_data.slice();
@@ -26,7 +26,7 @@ export default function onInit(){
     this.config.measure = this.config.measure || measures[0];
     //get list of visits
     var visits = set(
-        rawData.map(function(d){ return +d[config.time_col] })
+        rawData.map(function(d){ return d[config.time_col] })
     )
     .values()
     .sort(dataOps.naturalSorter);
@@ -36,7 +36,7 @@ export default function onInit(){
     this.config.y_params.visits = this.config.y_params.visits || visits.slice(1); //set last visit
     //create initial shift plot data
     this.super_raw_data = rawData;
-    this.raw_data = transformData.call(this, rawData);
+    this.raw_data = preprocessData.call(this, rawData);
     this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
     this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 };
