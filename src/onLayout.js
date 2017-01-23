@@ -40,17 +40,21 @@ export default function onLayout(){
         this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 
       //Redefine and preprocess filtered data and redraw chart.
-        this.filteredData = this.measureData
-            .filter(d => {
-                let filtered = false;
-                this.config.filters
-                    .forEach(filter => filtered = filtered === false && filter.value !== 'All'
-                        ? d[filter.value_col] !== filter.value
-                        : filtered);
-                return !filtered;
-            });
-        const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
-        this.draw(filteredPreprocessedData);
+        this.filteredData = this.measureData;
+        if (this.config.filters) {
+            this.filteredData = this.measureData
+                .filter(d => {
+                    let filtered = false;
+                    this.config.filters
+                        .forEach(filter => filtered = filtered === false && filter.value !== 'All'
+                            ? d[filter.value_col] !== filter.value
+                            : filtered);
+                    return !filtered;
+                });
+            const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
+            this.draw(filteredPreprocessedData);
+        } else
+            this.draw(this.raw_data);
     });
 
   //Customize baseline control.
@@ -72,8 +76,11 @@ export default function onLayout(){
         this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
 
       //Preprocess filtered data and redraw chart.
-        const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
-        this.draw(filteredPreprocessedData);
+        if (this.config.filters) {
+            const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
+            this.draw(filteredPreprocessedData);
+        } else
+            this.draw(this.raw_data);
     });
 
   //Customize comparison control.
@@ -95,8 +102,11 @@ export default function onLayout(){
         this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 
       //Preprocess filtered data and redraw chart.
-        const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
-        this.draw(filteredPreprocessedData);
+        if (this.config.filters) {
+            const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
+            this.draw(filteredPreprocessedData);
+        } else
+            this.draw(this.raw_data);
     });
 
     //add p for possible visits
