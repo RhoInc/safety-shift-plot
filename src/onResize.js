@@ -44,7 +44,7 @@ export default function onResize() {
         .values()
         .sort(dataOps.naturalSorter);
     
-    this.wrap.select('.possible-visits').text(`This measure is collected at visits ${possibleVisits.join(', ')}.`);
+    this.wrap.select('.possible-visits').text(`${this.config.measure} is collected at these visits: ${possibleVisits.join(', ')}.`);
 
     //Expand the domains a bit so that points on the edge are brushable
     this.x_dom[0] = this.x_dom[0] < 0 ?  this.x_dom[0]*1.01 : this.x_dom[0]*0.99; 

@@ -37,7 +37,7 @@ export default function onInit(){
   //Define initial shift plot data.
     this.measureData = this.allData
         .filter(d => d[this.config.measure_col] === this.config.measure); // raw data for a specific measure
-    this.filterdData = this.measureData; // filtered data for a specific measure data
+    this.filteredData = this.measureData; // filtered data placeholder
     this.raw_data = preprocessData.call(this, this.measureData); // preprocessed measure data
     this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
     this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));

@@ -175,7 +175,7 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 
         //Define initial shift plot data.
         this.measureData = this.allData.filter(d => d[this.config.measure_col] === this.config.measure); // raw data for a specific measure
-        this.filterdData = this.measureData; // filtered data for a specific measure data
+        this.filteredData = this.measureData; // filtered data placeholder
         this.raw_data = preprocessData.call(this, this.measureData); // preprocessed measure data
         this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
         this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
@@ -215,19 +215,21 @@ var safetyShiftPlot = function (webcharts, d3$1) {
     }
 
     function onLayout() {
-        //Prep chart container for brushing.
+        //Add header element in which to list visits at which measure is captured.
+        this.wrap.append('p', 'svg').attr('class', 'possible-visits');
+        //Designate chart container for brushing.
         this.wrap.classed('brushable', true);
+        //Add footnote element.
+        this.wrap.append('p').attr('class', 'record-note').text('Click and drag to select points');
+        //Initialize detail table.
+        this.detailTable = webcharts.createTable(this.wrap.node(), tableSettings).init([]);
 
         //Update the dropdown options
         this.controls.config.inputs.filter(input => input.option === 'measure')[0].values = this.config.measures;
         this.controls.config.inputs.filter(input => input.option === 'x_params_visits')[0].values = this.config.visits;
         this.controls.config.inputs.filter(input => input.option === 'y_params_visits')[0].values = this.config.visits;
-
         //Force controls to be redrawn.
         this.controls.layout();
-
-        //Create custom filters.
-        if (this.config.filters) addFilters(this);
 
         //Customize measure control.
         const measureSelect = this.controls.wrap.selectAll('.control-group').filter(f => f.option === 'measure').select('select');
@@ -241,7 +243,6 @@ var safetyShiftPlot = function (webcharts, d3$1) {
             this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 
             //Redefine and preprocess filtered data and redraw chart.
-            this.filteredData = this.measureData;
             if (this.config.filters) {
                 this.filteredData = this.measureData.filter(d => {
                     let filtered = false;
@@ -250,14 +251,17 @@ var safetyShiftPlot = function (webcharts, d3$1) {
                 });
                 const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
                 this.draw(filteredPreprocessedData);
-            } else this.draw(this.raw_data);
+            } else {
+                this.filteredData = this.measureData;
+                this.draw(this.raw_data);
+            }
         });
 
         //Customize baseline control.
         const baselineSelect = this.controls.wrap.selectAll('.control-group').filter(f => f.option === 'x_params_visits').select('select');
         baselineSelect.selectAll('option').filter(f => this.config.x_params.visits.indexOf(f) > -1).attr('selected', 'selected');
         baselineSelect.on('change', () => {
-            this.config.y_params.visits = baselineSelect.selectAll('option:checked').data();
+            this.config.x_params.visits = baselineSelect.selectAll('option:checked').data();
 
             //Redefine preprocessed measure data and x-domain.
             this.raw_data = preprocessData.call(this, this.measureData);
@@ -287,20 +291,11 @@ var safetyShiftPlot = function (webcharts, d3$1) {
             } else this.draw(this.raw_data);
         });
 
-        //add p for possible visits
-        this.wrap.insert('p', 'svg').attr('class', 'possible-visits');
+        //Create custom filters.
+        if (this.config.filters) addFilters(this);
 
-        //add p for the note
-        this.wrap.append('p').attr('class', 'record-note').text('Click and drag to select points');
-
-        //create empty table
-        this.detailTable = webcharts.createTable(this.wrap.node(), tableSettings).init([]);
-
-        //Add div for participant counts.
-        this.wrap.select('.wc-controls').append('span').classed('annote', true).style('float', 'right');
-
-        //Add div for participant counts.
-        this.controls.wrap.append('p').classed('annote', true);
+        //Add element for participant counts.
+        this.controls.wrap.append('em').classed('annote', true).style('display', 'block');
     }
 
     function onDataTransform() {}
@@ -437,7 +432,7 @@ var safetyShiftPlot = function (webcharts, d3$1) {
         //get list of visits
         var possibleVisits = d3$1.set(this.allData.filter(f => f[this.config.measure_col] === this.config.measure).map(d => d[this.config.time_col])).values().sort(webcharts.dataOps.naturalSorter);
 
-        this.wrap.select('.possible-visits').text(`This measure is collected at visits ${possibleVisits.join(', ')}.`);
+        this.wrap.select('.possible-visits').text(`${this.config.measure} is collected at these visits: ${possibleVisits.join(', ')}.`);
 
         //Expand the domains a bit so that points on the edge are brushable
         this.x_dom[0] = this.x_dom[0] < 0 ? this.x_dom[0] * 1.01 : this.x_dom[0] * 0.99;

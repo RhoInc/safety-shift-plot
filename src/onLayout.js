@@ -4,8 +4,14 @@ import addFilters from './util/addFilters';
 import preprocessData from './preprocessData';
 
 export default function onLayout(){
-  //Prep chart container for brushing.
+  //Add header element in which to list visits at which measure is captured.
+    this.wrap.append('p', 'svg').attr('class', 'possible-visits');
+  //Designate chart container for brushing.
     this.wrap.classed('brushable', true)
+  //Add footnote element.
+    this.wrap.append('p').attr('class', 'record-note').text('Click and drag to select points');
+  //Initialize detail table.
+    this.detailTable = createTable(this.wrap.node(), tableSettings).init([]);
 
   //Update the dropdown options
     this.controls.config.inputs
@@ -14,13 +20,8 @@ export default function onLayout(){
         .filter(input => input.option === 'x_params_visits')[0].values = this.config.visits;
     this.controls.config.inputs
         .filter(input => input.option === 'y_params_visits')[0].values = this.config.visits;
-
   //Force controls to be redrawn.
     this.controls.layout();
-
-  //Create custom filters.
-    if (this.config.filters)
-        addFilters(this);
 
   //Customize measure control.
     const measureSelect = this.controls.wrap
@@ -40,7 +41,6 @@ export default function onLayout(){
         this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
 
       //Redefine and preprocess filtered data and redraw chart.
-        this.filteredData = this.measureData;
         if (this.config.filters) {
             this.filteredData = this.measureData
                 .filter(d => {
@@ -53,8 +53,10 @@ export default function onLayout(){
                 });
             const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
             this.draw(filteredPreprocessedData);
-        } else
+        } else {
+            this.filteredData = this.measureData;
             this.draw(this.raw_data);
+        }
     });
 
   //Customize baseline control.
@@ -67,7 +69,7 @@ export default function onLayout(){
         .filter(f => this.config.x_params.visits.indexOf(f) > -1)
         .attr('selected', 'selected');
     baselineSelect.on('change', () => {
-        this.config.y_params.visits = baselineSelect
+        this.config.x_params.visits = baselineSelect
             .selectAll('option:checked')
             .data();
 
@@ -109,22 +111,13 @@ export default function onLayout(){
             this.draw(this.raw_data);
     });
 
-    //add p for possible visits
-    this.wrap.insert('p', 'svg').attr('class', 'possible-visits');
-    
-    //add p for the note
-    this.wrap.append('p').attr('class', 'record-note').text('Click and drag to select points');
-    
-    //create empty table
-    this.detailTable = createTable(this.wrap.node(), tableSettings).init([]);
+  //Create custom filters.
+    if (this.config.filters)
+        addFilters(this);
 
-  //Add div for participant counts.
-    this.wrap.select('.wc-controls').append('span')
-        .classed('annote', true)
-        .style('float', 'right');
-
-  //Add div for participant counts.
+  //Add element for participant counts.
     this.controls.wrap
-        .append('p')
-        .classed('annote', true);
+        .append('em')
+        .classed('annote', true)
+        .style('display', 'block');
 }
