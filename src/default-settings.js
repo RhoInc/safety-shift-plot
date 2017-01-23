@@ -5,10 +5,10 @@ const settings = {
     measure_col: 'TEST',
     value_col: 'STRESN',
     start_value: null,
-    measure: null, // set in syncSettings() 
     x_params: {visits: null, stat: 'mean'},
     y_params: {visits: null, stat: 'mean'},
     filters: null,
+    measure: null, // set in syncSettings() 
 
   //Standard webcharts settings
     x: {
@@ -39,7 +39,7 @@ const settings = {
     gridlines: 'xy',
     resizable: false,
     margin: {right: 25, top: 25},
-    aspect: 3
+    aspect: 1
 };
 
 // Replicate settings in multiple places in the settings object
