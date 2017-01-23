@@ -38,6 +38,8 @@ export default function preprocessData(rawData) {
     function getXY(e){
         e.shiftx = +setVal(e, config.x_params);
         e.shifty = +setVal(e, config.y_params);
+        e.chg = e.shifty - e.shiftx;
+        e.pchg = d3.format('%')(e.chg/e.shiftx);
     };
 
     function getChange(e){

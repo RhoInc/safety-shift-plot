@@ -40,11 +40,11 @@ export default function onResize() {
     xbox.select("g.boxplot").attr("transform", "translate(0," + -(this.config.margin.top/2) + ")")
     
     //get list of visits
-    var possibleVisits = set( this.super_raw_data.filter(f => f[this.config.measure_col] === this.config.measure).map(d => d[this.config.time_col]) )
+    var possibleVisits = set( this.allData.filter(f => f[this.config.measure_col] === this.config.measure).map(d => d[this.config.time_col]) )
         .values()
         .sort(dataOps.naturalSorter);
     
-    this.wrap.select('.possible-visits').text(`This measure collected at visits ${possibleVisits.join(', ')}`);
+    this.wrap.select('.possible-visits').text(`This measure is collected at visits ${possibleVisits.join(', ')}.`);
 
     //Expand the domains a bit so that points on the edge are brushable
     this.x_dom[0] = this.x_dom[0] < 0 ?  this.x_dom[0]*1.01 : this.x_dom[0]*0.99; 
@@ -78,7 +78,7 @@ export default function onResize() {
         this.detailTable.draw(selected_data);
 
         //footnote
-        this.wrap.select('.record-note').text("Details shown for " + selected_data.length + " selected points.")
+        this.wrap.select('.record-note').text("Details of " + selected_data.length + " selected points:")
         if(brush.empty()){
             this.wrap.select('.record-note').text("Click and drag to select points");
             points.select("circle").attr("fill-opacity", this.config.marks[0].attributes['fill-opacity'] );

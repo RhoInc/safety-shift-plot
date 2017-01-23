@@ -11,7 +11,7 @@
 
 export default function updateSubjectCount(chart, selector, id_unit) {
   //count the number of unique ids in the data set
-    const totalObs = d3.set(chart.super_raw_data
+    const totalObs = d3.set(chart.allData
         .map(d => d[chart.config.id_col])).values().length;
 
   //count the number of unique ids in the current chart and calculate the percentage

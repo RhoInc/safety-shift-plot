@@ -5,7 +5,7 @@ const settings = {
     measure_col: 'TEST',
     value_col: 'STRESN',
     start_value: null,
-    measure: null, //set in syncSettings() 
+    measure: null, // set in syncSettings() 
     x_params: {visits: null, stat: 'mean'},
     y_params: {visits: null, stat: 'mean'},
     filters: null,
@@ -20,7 +20,7 @@ const settings = {
     y: {
         column: 'shifty',
         type: 'linear',
-        label: 'End of Study Value',
+        label: 'Comparison Value',
         behavior: 'flex',
         format: '0.2f'
     },
@@ -33,7 +33,7 @@ const settings = {
                 'stroke-width': .5, 
                 'fill-opacity': 0.8
             },
-            tooltip: 'Baseline: [shiftx], Comparison: [shifty]'
+            tooltip: 'Subject ID: [key]\nBaseline: [shiftx]\nComparison: [shifty]\nChange: [chg]\nPercent Change: [pchg]'
         }
     ],
     gridlines: 'xy',
@@ -72,8 +72,18 @@ export function syncControlInputs(controlInputs, settings) {
 
 // Default Settings for custom linked table
 export const tableSettings = {
-    cols: ['key','shiftx','shifty'],
-    headers: ['ID','Start Value', 'End Value']
+    cols:
+        ['key'
+        ,'shiftx'
+        ,'shifty'
+        ,'chg'
+        ,'pchg'],
+    headers:
+        ['Subject ID'
+        ,'Baseline Value'
+        ,'Comparison Value'
+        ,'Change'
+        ,'Percent Change']
 };
 
 export default settings
