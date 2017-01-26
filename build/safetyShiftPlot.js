@@ -1,7 +1,7 @@
 var safetyShiftPlot = function (webcharts, d3$1) {
     'use strict';
 
-    const settings = {
+    var settings = {
         //Addition settings for this template
         id_col: 'USUBJID',
         time_col: 'VISITN',
@@ -50,13 +50,13 @@ var safetyShiftPlot = function (webcharts, d3$1) {
     }
 
     // Default Control objects
-    const controlInputs = [{ type: 'dropdown', values: [], label: 'Measure', option: 'measure', require: true }, { type: 'dropdown', values: [], label: 'Baseline visit(s)', option: 'x_params_visits', require: true, multiple: true }, { type: 'dropdown', values: [], label: 'Comparison visit(s)', option: 'y_params_visits', require: true, multiple: true }];
+    var controlInputs = [{ type: 'dropdown', values: [], label: 'Measure', option: 'measure', require: true }, { type: 'dropdown', values: [], label: 'Baseline visit(s)', option: 'x_params_visits', require: true, multiple: true }, { type: 'dropdown', values: [], label: 'Comparison visit(s)', option: 'y_params_visits', require: true, multiple: true }];
 
     // Map values from settings to control inputs
     function syncControlInputs(controlInputs, settings) {
         //Define filter objects.
         if (settings.filters) {
-            settings.filters.forEach((d, i) => {
+            settings.filters.forEach(function (d, i) {
                 d.type = 'subsetter';
                 d.value_col = d.value_col ? d.value_col : d;
                 d.label = d.label ? d.label : d.value_col ? d.value_col : d;
@@ -67,7 +67,7 @@ var safetyShiftPlot = function (webcharts, d3$1) {
     }
 
     // Default Settings for custom linked table
-    const tableSettings = {
+    var tableSettings = {
         cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
         headers: ['Subject ID', 'Baseline Value', 'Comparison Value', 'Change', 'Percent Change']
     };
@@ -150,17 +150,23 @@ var safetyShiftPlot = function (webcharts, d3$1) {
     }
 
     function onInit() {
-        let config = this.config;
+        var _this = this;
+
+        var config = this.config;
 
         //Define raw data.
         this.allData = this.raw_data;
-        this.allData.forEach(d => {
+        this.allData.forEach(function (d) {
             d[config.measure_col] = d[config.measure_col].trim();
         });
 
         //Get list of numeric measures.
-        this.config.measures = d3$1.set(this.allData.map(d => d[config.measure_col])).values().filter(measure => {
-            const measureValues = this.allData.filter(d => d[config.measure_col] === measure).map(d => {
+        this.config.measures = d3$1.set(this.allData.map(function (d) {
+            return d[config.measure_col];
+        })).values().filter(function (measure) {
+            var measureValues = _this.allData.filter(function (d) {
+                return d[config.measure_col] === measure;
+            }).map(function (d) {
                 return { value: d[config.value_col] };
             });
 
@@ -169,52 +175,68 @@ var safetyShiftPlot = function (webcharts, d3$1) {
         this.config.measure = this.config.measure || this.config.measures[0];
 
         //Get list of visits.
-        this.config.visits = d3$1.set(this.allData.map(d => d[config.time_col])).values().sort(webcharts.dataOps.naturalSorter);
+        this.config.visits = d3$1.set(this.allData.map(function (d) {
+            return d[config.time_col];
+        })).values().sort(webcharts.dataOps.naturalSorter);
         this.config.x_params.visits = this.config.x_params.visits || [this.config.visits[0]]; // set baseline visit(s)
         this.config.y_params.visits = this.config.y_params.visits || this.config.visits.slice(1); // set comparison visit(s)
 
         //Define initial shift plot data.
-        this.measureData = this.allData.filter(d => d[this.config.measure_col] === this.config.measure); // raw data for a specific measure
+        this.measureData = this.allData.filter(function (d) {
+            return d[_this.config.measure_col] === _this.config.measure;
+        }); // raw data for a specific measure
         this.filteredData = this.measureData; // filtered data placeholder
         this.raw_data = preprocessData.call(this, this.measureData); // preprocessed measure data
-        this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
-        this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
+        this.config.x.domain = d3.extent(this.raw_data.map(function (d) {
+            return d.shiftx;
+        }));
+        this.config.y.domain = d3.extent(this.raw_data.map(function (d) {
+            return d.shifty;
+        }));
     };
 
     function addFilters(chart) {
-        chart.config.filters.forEach(filter => {
+        chart.config.filters.forEach(function (filter) {
             //Capture distinct [filter.value_col] values.
-            filter.values = d3.set(chart.allData.map(d => d[filter.value_col])).values();
+            filter.values = d3.set(chart.allData.map(function (d) {
+                return d[filter.value_col];
+            })).values();
             filter.value = 'All';
 
             //Attach filter to the DOM.
-            const controlGroup = chart.controls.wrap.append('div').classed('control-group', true).datum(filter);
+            var controlGroup = chart.controls.wrap.append('div').classed('control-group', true).datum(filter);
             controlGroup.append('span').classed('control-label', true).text(filter.label);
-            const changer = controlGroup.append('select').classed('changer', true);
+            var changer = controlGroup.append('select').classed('changer', true);
 
             //Attach distinct [filter.value_col] values as select options.
-            changer.selectAll('option').data(['All'].concat(filter.values)).enter().append('option').text(d => d);
+            changer.selectAll('option').data(['All'].concat(filter.values)).enter().append('option').text(function (d) {
+                return d;
+            });
 
             //Define dropdown event listener.
-            changer.on('change', d => {
+            changer.on('change', function (d) {
                 //Set [filter.value] to dropdown selection.
                 filter.value = changer.select('option:checked').property('text');
 
                 //Filter raw measure data on all filter selections.
-                chart.filteredData = chart.measureData.filter(di => {
-                    let filtered = false;
-                    chart.config.filters.forEach(dii => filtered = filtered === false && dii.value !== 'All' ? di[dii.value_col] !== dii.value : filtered);
+                chart.filteredData = chart.measureData.filter(function (di) {
+                    var filtered = false;
+                    chart.config.filters.forEach(function (dii) {
+                        return filtered = filtered === false && dii.value !== 'All' ? di[dii.value_col] !== dii.value : filtered;
+                    });
                     return !filtered;
                 });
 
                 //Preprocess filtered data and redraw chart.
-                const preprocessedFilteredData = preprocessData.call(chart, chart.filteredData);
+                var preprocessedFilteredData = preprocessData.call(chart, chart.filteredData);
                 chart.draw(preprocessedFilteredData);
             });
         });
     }
 
     function onLayout() {
+        var _this = this;
+
         //Add header element in which to list visits at which measure is captured.
         this.wrap.append('p', 'svg').attr('class', 'possible-visits');
         //Designate chart container for brushing.
@@ -225,70 +247,98 @@ var safetyShiftPlot = function (webcharts, d3$1) {
         this.detailTable = webcharts.createTable(this.wrap.node(), tableSettings).init([]);
 
         //Update the dropdown options
-        this.controls.config.inputs.filter(input => input.option === 'measure')[0].values = this.config.measures;
-        this.controls.config.inputs.filter(input => input.option === 'x_params_visits')[0].values = this.config.visits;
-        this.controls.config.inputs.filter(input => input.option === 'y_params_visits')[0].values = this.config.visits;
+        this.controls.config.inputs.filter(function (input) {
+            return input.option === 'measure';
+        })[0].values = this.config.measures;
+        this.controls.config.inputs.filter(function (input) {
+            return input.option === 'x_params_visits';
+        })[0].values = this.config.visits;
+        this.controls.config.inputs.filter(function (input) {
+            return input.option === 'y_params_visits';
+        })[0].values = this.config.visits;
         //Force controls to be redrawn.
         this.controls.layout();
 
         //Customize measure control.
-        const measureSelect = this.controls.wrap.selectAll('.control-group').filter(f => f.option === 'measure').select('select');
-        measureSelect.on('change', () => {
-            this.config.measure = measureSelect.select('option:checked').property('text');
+        var measureSelect = this.controls.wrap.selectAll('.control-group').filter(function (f) {
+            return f.option === 'measure';
+        }).select('select');
+        measureSelect.on('change', function () {
+            _this.config.measure = measureSelect.select('option:checked').property('text');
 
             //Redefine raw and preprocessed measure data, x-domain, and y-domain.
-            this.measureData = this.allData.filter(d => d[this.config.measure_col] === this.config.measure);
-            this.raw_data = preprocessData.call(this, this.measureData);
-            this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
-            this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
+            _this.measureData = _this.allData.filter(function (d) {
+                return d[_this.config.measure_col] === _this.config.measure;
+            });
+            _this.raw_data = preprocessData.call(_this, _this.measureData);
+            _this.config.x.domain = d3.extent(_this.raw_data.map(function (d) {
+                return d.shiftx;
+            }));
+            _this.config.y.domain = d3.extent(_this.raw_data.map(function (d) {
+                return d.shifty;
+            }));
 
             //Redefine and preprocess filtered data and redraw chart.
-            if (this.config.filters) {
-                this.filteredData = this.measureData.filter(d => {
-                    let filtered = false;
-                    this.config.filters.forEach(filter => filtered = filtered === false && filter.value !== 'All' ? d[filter.value_col] !== filter.value : filtered);
+            if (_this.config.filters) {
+                _this.filteredData = _this.measureData.filter(function (d) {
+                    var filtered = false;
+                    _this.config.filters.forEach(function (filter) {
+                        return filtered = filtered === false && filter.value !== 'All' ? d[filter.value_col] !== filter.value : filtered;
+                    });
                     return !filtered;
                 });
-                const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
-                this.draw(filteredPreprocessedData);
+                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
+                _this.draw(filteredPreprocessedData);
             } else {
-                this.filteredData = this.measureData;
-                this.draw(this.raw_data);
+                _this.filteredData = _this.measureData;
+                _this.draw(_this.raw_data);
             }
         });
 
         //Customize baseline control.
-        const baselineSelect = this.controls.wrap.selectAll('.control-group').filter(f => f.option === 'x_params_visits').select('select');
-        baselineSelect.selectAll('option').filter(f => this.config.x_params.visits.indexOf(f) > -1).attr('selected', 'selected');
-        baselineSelect.on('change', () => {
-            this.config.x_params.visits = baselineSelect.selectAll('option:checked').data();
+        var baselineSelect = this.controls.wrap.selectAll('.control-group').filter(function (f) {
+            return f.option === 'x_params_visits';
+        }).select('select');
+        baselineSelect.selectAll('option').filter(function (f) {
+            return _this.config.x_params.visits.indexOf(f) > -1;
+        }).attr('selected', 'selected');
+        baselineSelect.on('change', function () {
+            _this.config.x_params.visits = baselineSelect.selectAll('option:checked').data();
 
             //Redefine preprocessed measure data and x-domain.
-            this.raw_data = preprocessData.call(this, this.measureData);
-            this.config.x.domain = d3.extent(this.raw_data.map(d => d.shiftx));
+            _this.raw_data = preprocessData.call(_this, _this.measureData);
+            _this.config.x.domain = d3.extent(_this.raw_data.map(function (d) {
+                return d.shiftx;
+            }));
 
             //Preprocess filtered data and redraw chart.
-            if (this.config.filters) {
-                const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
-                this.draw(filteredPreprocessedData);
-            } else this.draw(this.raw_data);
+            if (_this.config.filters) {
+                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
+                _this.draw(filteredPreprocessedData);
+            } else _this.draw(_this.raw_data);
         });
 
         //Customize comparison control.
-        const comparisonSelect = this.controls.wrap.selectAll('.control-group').filter(f => f.option === 'y_params_visits').select('select');
-        comparisonSelect.selectAll('option').filter(f => this.config.y_params.visits.indexOf(f) > -1).attr('selected', 'selected');
-        comparisonSelect.on('change', () => {
-            this.config.y_params.visits = comparisonSelect.selectAll('option:checked').data();
+        var comparisonSelect = this.controls.wrap.selectAll('.control-group').filter(function (f) {
+            return f.option === 'y_params_visits';
+        }).select('select');
+        comparisonSelect.selectAll('option').filter(function (f) {
+            return _this.config.y_params.visits.indexOf(f) > -1;
+        }).attr('selected', 'selected');
+        comparisonSelect.on('change', function () {
+            _this.config.y_params.visits = comparisonSelect.selectAll('option:checked').data();
 
             //Redefine preprocessed measure data and y-domain.
-            this.raw_data = preprocessData.call(this, this.measureData);
-            this.config.y.domain = d3.extent(this.raw_data.map(d => d.shifty));
+            _this.raw_data = preprocessData.call(_this, _this.measureData);
+            _this.config.y.domain = d3.extent(_this.raw_data.map(function (d) {
+                return d.shifty;
+            }));
 
             //Preprocess filtered data and redraw chart.
-            if (this.config.filters) {
-                const filteredPreprocessedData = preprocessData.call(this, this.filteredData);
-                this.draw(filteredPreprocessedData);
-            } else this.draw(this.raw_data);
+            if (_this.config.filters) {
+                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
+                _this.draw(filteredPreprocessedData);
+            } else _this.draw(_this.raw_data);
         });
 
         //Create custom filters.
@@ -311,19 +361,23 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 
     function updateSubjectCount(chart, selector, id_unit) {
         //count the number of unique ids in the data set
-        const totalObs = d3.set(chart.allData.map(d => d[chart.config.id_col])).values().length;
+        var totalObs = d3.set(chart.allData.map(function (d) {
+            return d[chart.config.id_col];
+        })).values().length;
 
         //count the number of unique ids in the current chart and calculate the percentage
-        const currentObs = chart.filtered_data.filter(d => chart.x.domain()[0] <= d.shiftx <= chart.x.domain()[1] && chart.y.domain()[0] <= d.shifty <= chart.y.domain()[1]).length;
+        var currentObs = chart.filtered_data.filter(function (d) {
+            return chart.x.domain()[0] <= d.shiftx <= chart.x.domain()[1] && chart.y.domain()[0] <= d.shifty <= chart.y.domain()[1];
+        }).length;
 
-        const percentage = d3.format('0.1%')(currentObs / totalObs);
+        var percentage = d3.format('0.1%')(currentObs / totalObs);
 
         //clear the annotation
-        let annotation = d3.select(selector);
+        var annotation = d3.select(selector);
         annotation.selectAll('*').remove();
 
         //update the annotation
-        const units = id_unit ? ' ' + id_unit : ' participant(s)';
+        var units = id_unit ? ' ' + id_unit : ' participant(s)';
         annotation.text(currentObs + ' of ' + totalObs + units + ' shown (' + percentage + ')');
     }
 
@@ -399,7 +453,9 @@ var safetyShiftPlot = function (webcharts, d3$1) {
     }
 
     function onResize() {
-        const decim = d3$1.format('.2f');
+        var _this = this;
+
+        var decim = d3$1.format('.2f');
         // Draw box plots
         this.svg.selectAll('g.boxplot').remove();
 
@@ -430,9 +486,13 @@ var safetyShiftPlot = function (webcharts, d3$1) {
         xbox.select('g.boxplot').attr('transform', 'translate(0,' + -(this.config.margin.top / 2) + ')');
 
         //get list of visits
-        var possibleVisits = d3$1.set(this.allData.filter(f => f[this.config.measure_col] === this.config.measure).map(d => d[this.config.time_col])).values().sort(webcharts.dataOps.naturalSorter);
+        var possibleVisits = d3$1.set(this.allData.filter(function (f) {
+            return f[_this.config.measure_col] === _this.config.measure;
+        }).map(function (d) {
+            return d[_this.config.time_col];
+        })).values().sort(webcharts.dataOps.naturalSorter);
 
-        this.wrap.select('.possible-visits').text(`${this.config.measure} is collected at these visits: ${possibleVisits.join(', ')}.`);
+        this.wrap.select('.possible-visits').text(this.config.measure + ' is collected at these visits: ' + possibleVisits.join(', ') + '.');
 
         //Expand the domains a bit so that points on the edge are brushable
         this.x_dom[0] = this.x_dom[0] < 0 ? this.x_dom[0] * 1.01 : this.x_dom[0] * 0.99;
@@ -447,19 +507,23 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 
         //brushing
         function brushed() {
+            var _this2 = this;
+
             var extent = brush.extent();
             var points = this.svg.selectAll('g.point').classed('selected', false);
 
             points.select('circle').attr('fill-opacity', 0);
 
-            var selected_points = points.filter(d => {
-                var cx = this.x(+d.values.x);
-                var cy = this.y(+d.values.y);
+            var selected_points = points.filter(function (d) {
+                var cx = _this2.x(+d.values.x);
+                var cy = _this2.y(+d.values.y);
                 return extent[0][0] <= cx && cx <= extent[1][0] && extent[0][1] <= cy && cy <= extent[1][1];
             }).classed('selected', true).select('circle').attr('fill-opacity', this.config.marks[0].attributes['fill-opacity']);
 
             //redraw the table with the new data
-            var selected_data = selected_points.data().map(m => m.values.raw[0]);
+            var selected_data = selected_points.data().map(function (m) {
+                return m.values.raw[0];
+            });
             this.detailTable.draw(selected_data);
 
             //footnote
@@ -522,17 +586,17 @@ var safetyShiftPlot = function (webcharts, d3$1) {
 
     function safetyShiftPlot(element, settings$$) {
         //Merge user's settings with default settings.
-        let mergedSettings = Object.assign({}, settings, settings$$);
+        var mergedSettings = Object.assign({}, settings, settings$$);
 
         //Sync properties within merged settings, e.g. data mappings.
         mergedSettings = syncSettings(mergedSettings);
 
         //Sync control inputs with merged settings.
-        const syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
-        const controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
+        var syncedControlInputs = syncControlInputs(controlInputs, mergedSettings);
+        var controls = webcharts.createControls(element, { location: 'top', inputs: syncedControlInputs });
 
         //Create chart.
-        let chart = webcharts.createChart(element, mergedSettings, controls);
+        var chart = webcharts.createChart(element, mergedSettings, controls);
         chart.on('init', onInit);
         chart.on('layout', onLayout);
         chart.on('datatransform', onDataTransform);
