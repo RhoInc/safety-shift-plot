@@ -30,6 +30,7 @@ export default function onInit(){
             this.allData
                 .map(d => d[config.time_col]))
         .values()
+        .filter(d => !!d)
         .sort(dataOps.naturalSorter);
     this.config.x_params.visits = this.config.x_params.visits || [this.config.visits[0]]; // set baseline visit(s)
     this.config.y_params.visits = this.config.y_params.visits || this.config.visits.slice(1); // set comparison visit(s)

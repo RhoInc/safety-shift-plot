@@ -177,7 +177,9 @@ var safetyShiftPlot = function (webcharts, d3$1) {
         //Get list of visits.
         this.config.visits = d3$1.set(this.allData.map(function (d) {
             return d[config.time_col];
-        })).values().sort(webcharts.dataOps.naturalSorter);
+        })).values().filter(function (d) {
+            return !!d;
+        }).sort(webcharts.dataOps.naturalSorter);
         this.config.x_params.visits = this.config.x_params.visits || [this.config.visits[0]]; // set baseline visit(s)
         this.config.y_params.visits = this.config.y_params.visits || this.config.visits.slice(1); // set comparison visit(s)
 
