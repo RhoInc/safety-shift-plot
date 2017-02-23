@@ -1,7 +1,7 @@
 import { nest, sum, merge, min, max } from 'd3';
 
 export default function preprocessData(rawData) {
-	var config = this.config;
+    var config = this.config;
 
     var nested = nest()
         .key(function(d){return d[config.id_col]})
@@ -38,6 +38,8 @@ export default function preprocessData(rawData) {
     function getXY(e){
         e.shiftx = +setVal(e, config.x_params);
         e.shifty = +setVal(e, config.y_params);
+        e.chg = e.shifty - e.shiftx;
+        e.pchg = d3.format('%')(e.chg/e.shiftx);
     };
 
     function getChange(e){
@@ -57,14 +59,6 @@ export default function preprocessData(rawData) {
         var match = config.details.filter(function(f){return f.col === config.color_by});
         if(!match[0])
             config.details.push({col: config.color_by, label: config.color_by})
-    }
-
-    if(this.filters){
-        this.filters.forEach(function(e){
-            var match = config.details.filter(function(f){return f.col === e.col});
-            if(!match[0])
-                config.details.push({col: e.col, label: e.col})
-        })
     }
 
     var test_data = nested;
