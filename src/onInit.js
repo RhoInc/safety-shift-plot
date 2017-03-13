@@ -4,14 +4,30 @@ import preprocessData from './preprocessData';
 
 export default function onInit(){
     let config = this.config;
+    console.log(this.config.filters)
+    // Remove filters for variables with 0 or 1 levels
+    var chart = this;
+    console.log(this)
+    this.config.filters =this.config.filters
+    .filter(function(d){
+        if(d.type!="subsetter"){
+            return true
+        } else {
+            var levels = d3.set(chart.raw_data.map(f=>f[d.value_col])).values()
+            if(levels.length < 2 ){
+                console.warn(d.value_col + " filter not shown since the variable has less than 2 levels")
+            }
+            return levels.length >=2    
+        }
+    })
 
-  //Define raw data.
+    //Define raw data.
     this.allData = this.raw_data
     this.allData.forEach(d => {
         d[config.measure_col] = d[config.measure_col].trim();
     });
 
-  //Get list of numeric measures.
+    //Get list of numeric measures.
     this.config.measures = set(
             this.allData
                 .map(d => d[config.measure_col]))
@@ -25,7 +41,7 @@ export default function onInit(){
         });
     this.config.measure = this.config.measure || this.config.measures[0];
 
-  //Get list of visits.
+    //Get list of visits.
     this.config.visits = set(
             this.allData
                 .map(d => d[config.time_col]))
