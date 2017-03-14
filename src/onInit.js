@@ -4,22 +4,24 @@ import preprocessData from './preprocessData';
 
 export default function onInit(){
     let config = this.config;
-    console.log(this.config.filters)
+
     // Remove filters for variables with 0 or 1 levels
     var chart = this;
-    console.log(this)
-    this.config.filters =this.config.filters
-    .filter(function(d){
-        if(d.type!="subsetter"){
-            return true
-        } else {
-            var levels = d3.set(chart.raw_data.map(f=>f[d.value_col])).values()
-            if(levels.length < 2 ){
-                console.warn(d.value_col + " filter not shown since the variable has less than 2 levels")
+
+    if(this.config.filters!=null){
+        this.config.filters =this.config.filters
+        .filter(function(d){
+            if(d.type!="subsetter"){
+                return true
+            } else {
+                var levels = d3.set(chart.raw_data.map(f=>f[d.value_col])).values()
+                if(levels.length < 2 ){
+                    console.warn(d.value_col + " filter not shown since the variable has less than 2 levels")
+                }
+                return levels.length >=2    
             }
-            return levels.length >=2    
-        }
-    })
+        })
+    }
 
     //Define raw data.
     this.allData = this.raw_data
