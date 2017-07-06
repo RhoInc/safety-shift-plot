@@ -1,18 +1,17 @@
 export default function clone(obj) {
     var copy;
 
-  //boolean, number, string, null, undefined
-    if ('object' != typeof obj || null == obj)
-        return obj;
+    //boolean, number, string, null, undefined
+    if ('object' != typeof obj || null == obj) return obj;
 
-  //date
+    //date
     if (obj instanceof Date) {
         copy = new Date();
         copy.setTime(obj.getTime());
         return copy;
     }
 
-  //array
+    //array
     if (obj instanceof Array) {
         copy = [];
         for (var i = 0, len = obj.length; i < len; i++) {
@@ -21,12 +20,11 @@ export default function clone(obj) {
         return copy;
     }
 
-  //object
+    //object
     if (obj instanceof Object) {
         copy = {};
         for (var attr in obj) {
-            if (obj.hasOwnProperty(attr))
-                copy[attr] = clone(obj[attr]);
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
         }
         return copy;
     }

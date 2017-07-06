@@ -3,11 +3,17 @@ import babel from 'rollup-plugin-babel';
 module.exports = {
   moduleName: 'safetyShiftPlot',
   entry: './src/wrapper.js',
-  format: 'iife',
+  dest: './build/safetyShiftPlot.js',
+  format: 'umd',
   globals: {
-    webcharts: 'webCharts',
-    d3: 'd3'
+    d3: 'd3',
+    webcharts: 'webCharts'
   },
+  external: (function() {
+    var dependencies = require('./package.json').dependencies;
+
+    return Object.keys(dependencies);
+  }()),
   plugins: [
     babel(
       {
@@ -25,4 +31,4 @@ module.exports = {
         "exclude": "node_modules/**"
       })
   ]
-}; 
+};
