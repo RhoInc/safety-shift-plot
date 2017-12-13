@@ -5,9 +5,7 @@
 
 ## Overview
 
-Safety Shift Plot is a JavaScript library, built using Webcharts ([1](https://github.com/RhoInc/Webcharts), [2](https://github.com/RhoInc/webcharts-wrapper-boilerplate)), that allows users to compare lab and vital sign values between two time points. A typical chart created with Saftey Shift Plot looks like the above chart when it is first loaded. 
-
-It also features a self updating data listing below the chart that shows meta data about the selected points as pictured below. 
+Safety Shift Plot is a JavaScript library, built using Webcharts ([1](https://github.com/RhoInc/Webcharts), [2](https://github.com/RhoInc/webcharts-wrapper-boilerplate)), that allows users to compare lab and vital sign values between two time points. A typical chart created with Saftey Shift Plot looks like the above chart when it is first loaded. It also features a self updating data listing below the chart that shows meta data about the selected points as pictured below. 
 
 ![alt tag](https://user-images.githubusercontent.com/31038805/33946248-46a9933c-dfef-11e7-8ac3-7f9ed6bcddf6.gif)
 
