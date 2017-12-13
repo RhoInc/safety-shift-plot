@@ -51,8 +51,11 @@ d3.csv('../data/ADBDS.csv', function(data) {
 });
 ```
 
-Click [here](https://rhoinc.github.io/viz-library/examples/0008-safetyExplorer-default/safety-shift-plot/) to open an interactive example.
+## Links 
 
-## Examples
+- [Interactive Example](https://rhoinc.github.io/viz-library/examples/0008-safetyExplorer-default/safety-shift-plot/)
+- [Configuration](https://github.com/RhoInc/safety-shift-plot/wiki/Configuration) 
+- [API](https://github.com/RhoInc/safety-shift-plot/wiki/API)
+- [Technical Documentation](https://github.com/RhoInc/safety-shift-plot/wiki/Technical-Documentation) 
+- [Data Guidelines](https://github.com/RhoInc/safety-shift-plot/wiki/Data-Guidelines)
 
-- [Safety Histogram with defaults](https://rhoinc.github.io/viz-library/examples/0008-safetyExplorer-default/safety-shift-plot/)
