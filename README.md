@@ -9,6 +9,8 @@ Safety Shift Plot is a JavaScript library, built using Webcharts ([1](https://gi
 
 ![alt tag](https://user-images.githubusercontent.com/31038805/33946248-46a9933c-dfef-11e7-8ac3-7f9ed6bcddf6.gif)
 
+
+
 The chart uses the AdAM data standards by default, but can be customized to use any data set that is one record per measurement. Full details about chart configuration are [here](Configuration).
 
 Users can:
