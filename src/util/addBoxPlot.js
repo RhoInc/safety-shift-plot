@@ -1,6 +1,6 @@
 import { ascending, scale, quantile, mean, format, min, median, max, deviation } from 'd3';
 
-export default function addBoxplot(
+export default function addBoxPlot(
     svg,
     results,
     height,
@@ -38,7 +38,10 @@ export default function addBoxplot(
         probs[i] = quantile(results, probs[i]);
     }
 
-    var boxplot = svg.append('g').attr('class', 'boxplot').datum({ values: results, probs: probs });
+    var boxplot = svg
+        .append('g')
+        .attr('class', 'boxplot')
+        .datum({ values: results, probs: probs });
 
     //set bar width variable
     var left = horizontal ? 0.5 - boxPlotWidth / 2 : null;
@@ -114,37 +117,40 @@ export default function addBoxplot(
 
     var formatx = fmt ? format(fmt) : format('.2f');
 
-    boxplot.selectAll('.boxplot').append('title').text(function(d) {
-        return (
-            'N = ' +
-            d.values.length +
-            '\n' +
-            'Min = ' +
-            min(d.values) +
-            '\n' +
-            '5th % = ' +
-            formatx(quantile(d.values, 0.05)) +
-            '\n' +
-            'Q1 = ' +
-            formatx(quantile(d.values, 0.25)) +
-            '\n' +
-            'Median = ' +
-            formatx(median(d.values)) +
-            '\n' +
-            'Q3 = ' +
-            formatx(quantile(d.values, 0.75)) +
-            '\n' +
-            '95th % = ' +
-            formatx(quantile(d.values, 0.95)) +
-            '\n' +
-            'Max = ' +
-            max(d.values) +
-            '\n' +
-            'Mean = ' +
-            formatx(mean(d.values)) +
-            '\n' +
-            'StDev = ' +
-            formatx(deviation(d.values))
-        );
-    });
+    boxplot
+        .selectAll('.boxplot')
+        .append('title')
+        .text(function(d) {
+            return (
+                'N = ' +
+                d.values.length +
+                '\n' +
+                'Min = ' +
+                min(d.values) +
+                '\n' +
+                '5th % = ' +
+                formatx(quantile(d.values, 0.05)) +
+                '\n' +
+                'Q1 = ' +
+                formatx(quantile(d.values, 0.25)) +
+                '\n' +
+                'Median = ' +
+                formatx(median(d.values)) +
+                '\n' +
+                'Q3 = ' +
+                formatx(quantile(d.values, 0.75)) +
+                '\n' +
+                '95th % = ' +
+                formatx(quantile(d.values, 0.95)) +
+                '\n' +
+                'Max = ' +
+                max(d.values) +
+                '\n' +
+                'Mean = ' +
+                formatx(mean(d.values)) +
+                '\n' +
+                'StDev = ' +
+                formatx(deviation(d.values))
+            );
+        });
 }

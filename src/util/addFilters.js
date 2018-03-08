@@ -12,7 +12,10 @@ export default function addFilters(chart) {
             .append('div')
             .classed('control-group', true)
             .datum(filter);
-        controlGroup.append('span').classed('control-label', true).text(filter.label);
+        controlGroup
+            .append('span')
+            .classed('wc-control-label', true)
+            .text(filter.label);
         const changer = controlGroup.append('select').classed('changer', true);
 
         //Attach distinct [filter.value_col] values as select options.
@@ -33,9 +36,10 @@ export default function addFilters(chart) {
                 let filtered = false;
                 chart.config.filters.forEach(
                     dii =>
-                        (filtered = filtered === false && dii.value !== 'All'
-                            ? di[dii.value_col] !== dii.value
-                            : filtered)
+                        (filtered =
+                            filtered === false && dii.value !== 'All'
+                                ? di[dii.value_col] !== dii.value
+                                : filtered)
                 );
                 return !filtered;
             });

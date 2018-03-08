@@ -10,7 +10,10 @@ export default function onLayout() {
     //Designate chart container for brushing.
     this.wrap.classed('brushable', true);
     //Add footnote element.
-    this.wrap.append('p').attr('class', 'record-note').text('Click and drag to select points');
+    this.wrap
+        .append('p')
+        .attr('class', 'record-note')
+        .text('Click and drag to select points');
     //Initialize detail table.
     this.detailTable = createTable(this.wrap.node(), tableSettings).init([]);
 
@@ -49,9 +52,10 @@ export default function onLayout() {
                 let filtered = false;
                 this.config.filters.forEach(
                     filter =>
-                        (filtered = filtered === false && filter.value !== 'All'
-                            ? d[filter.value_col] !== filter.value
-                            : filtered)
+                        (filtered =
+                            filtered === false && filter.value !== 'All'
+                                ? d[filter.value_col] !== filter.value
+                                : filtered)
                 );
                 return !filtered;
             });
@@ -113,5 +117,8 @@ export default function onLayout() {
     if (this.config.filters) addFilters(this);
 
     //Add element for participant counts.
-    this.controls.wrap.append('em').classed('annote', true).style('display', 'block');
+    this.controls.wrap
+        .append('em')
+        .classed('annote', true)
+        .style('display', 'block');
 }

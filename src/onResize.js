@@ -1,6 +1,6 @@
 import { set, svg, scale, format, min, max } from 'd3';
 import { dataOps } from 'webcharts';
-import addBoxplot from './util/addBoxplot';
+import addBoxPlot from './util/addBoxPlot';
 
 export default function onResize() {
     const decim = format('.2f');
@@ -12,7 +12,7 @@ export default function onResize() {
         return d.values.y;
     });
     var ybox = this.svg.append('g').attr('class', 'yMargin');
-    addBoxplot(ybox, yValues, this.plot_height, 1, this.y_dom, 10, '#bbb', 'white');
+    addBoxPlot(ybox, yValues, this.plot_height, 1, this.y_dom, 10, '#bbb', 'white');
     ybox
         .select('g.boxplot')
         .attr('transform', 'translate(' + (this.plot_width + this.config.margin.right / 2) + ',0)');
@@ -22,7 +22,7 @@ export default function onResize() {
         return d.values.x;
     });
     var xbox = this.svg.append('g').attr('class', 'xMargin');
-    addBoxplot(
+    addBoxPlot(
         xbox, //svg element
         xValues, //values
         1, //height
