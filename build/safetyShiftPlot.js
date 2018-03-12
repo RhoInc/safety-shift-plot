@@ -3,7 +3,7 @@
         ? (module.exports = factory(require('webcharts'), require('d3')))
         : typeof define === 'function' && define.amd
             ? define(['webcharts', 'd3'], factory)
-            : (global['safety-shift-plot'] = factory(global.webCharts, global.d3));
+            : (global.safetyShiftPlot = factory(global.webCharts, global.d3));
 })(this, function(webcharts, d3) {
     'use strict';
 
