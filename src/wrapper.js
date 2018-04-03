@@ -29,6 +29,7 @@ import onResize from './onResize';
 
 export default function safetyShiftPlot(element, settings) {
     //settings
+    if (settings.time_col && !settings.visit_col) settings.visit_col = settings.time_col; // prevent breaking backwards compatibility
     const mergedSettings = Object.assign({}, clone(defaultSettings), clone(settings));
     const syncedSettings = syncSettings(clone(mergedSettings));
     const syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);

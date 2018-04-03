@@ -1,6 +1,6 @@
 import { ascending, scale, quantile, mean, format, min, median, max, deviation } from 'd3';
 
-export default function addBoxPlot(
+export default function drawBoxPlot(
     svg,
     results,
     height,

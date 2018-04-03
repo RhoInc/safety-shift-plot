@@ -8,7 +8,7 @@ export default function preprocessData(rawData) {
             return d[config.id_col];
         })
         .key(function(d) {
-            return d[config.time_col];
+            return d[config.visit_col];
         })
         .key(function(d) {
             return d[config.measure_col];
