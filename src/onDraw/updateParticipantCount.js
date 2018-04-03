@@ -11,7 +11,7 @@
 
 import { set, format, select } from 'd3';
 
-export default function updateSubjectCount(chart, selector, id_unit) {
+export default function updateParticipantCount(chart, selector, id_unit) {
     //count the number of unique ids in the data set
     const totalObs = set(chart.allData.map(d => d[chart.config.id_col])).values().length;
 

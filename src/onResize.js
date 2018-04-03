@@ -1,6 +1,6 @@
 import { set, svg, scale, format, min, max } from 'd3';
 import { dataOps } from 'webcharts';
-import addBoxPlot from './util/addBoxPlot';
+import addBoxPlot from './onResize/addBoxPlot';
 
 export default function onResize() {
     const decim = format('.2f');
@@ -64,7 +64,6 @@ export default function onResize() {
         .select('circle')
         .style('fill', this.config.colors[0]);
     this.wrap.select('.record-note').text('Click and drag to select points.');
-    this.detailTable.draw([]);
 
     //brushing
     function brushed() {
@@ -90,7 +89,9 @@ export default function onResize() {
 
         //redraw the table with the new data
         var selected_data = selected_points.data().map(m => m.values.raw[0]);
-        this.detailTable.draw(selected_data);
+        this.listing.draw(selected_data);
+        if (selected_data.length === 0) this.listing.wrap.style('display', 'none');
+        else this.listing.wrap.style('display', 'block');
 
         //footnote
         this.wrap

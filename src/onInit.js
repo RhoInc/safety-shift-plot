@@ -1,28 +1,14 @@
+import checkFilters from './onInit/checkFilters';
 import { set, extent } from 'd3';
 import { dataOps } from 'webcharts';
-import preprocessData from './preprocessData';
+import preprocessData from './util/preprocessData';
 
 export default function onInit() {
     let config = this.config;
 
     // Remove filters for variables with 0 or 1 levels
+    checkFilters.call(this);
     var chart = this;
-
-    if (this.config.filters != null) {
-        this.config.filters = this.config.filters.filter(function(d) {
-            if (d.type != 'subsetter') {
-                return true;
-            } else {
-                var levels = set(chart.raw_data.map(f => f[d.value_col])).values();
-                if (levels.length < 2) {
-                    console.warn(
-                        d.value_col + ' filter not shown since the variable has less than 2 levels'
-                    );
-                }
-                return levels.length >= 2;
-            }
-        });
-    }
 
     //Define raw data.
     this.allData = this.raw_data;
