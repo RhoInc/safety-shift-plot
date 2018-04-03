@@ -16,19 +16,6 @@ export default function onLayout() {
         .attr('class', 'record-note')
         .text('Click and drag to select points');
 
-    //Update the dropdown options
-    this.controls.config.inputs.filter(
-        input => input.option === 'measure'
-    )[0].values = this.config.measures;
-    this.controls.config.inputs.filter(
-        input => input.option === 'x_params_visits'
-    )[0].values = this.config.visits;
-    this.controls.config.inputs.filter(
-        input => input.option === 'y_params_visits'
-    )[0].values = this.config.visits;
-    //Force controls to be redrawn.
-    this.controls.layout();
-
     //Customize measure, baseline, and comparison controls.
     customizeMeasureControl.call(this);
     customizeBaselineControl.call(this);
