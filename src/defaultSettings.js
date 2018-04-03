@@ -96,5 +96,5 @@ export const listingSettings = {
     searchable: false,
     sortable: true,
     pagination: false,
-    exportable: true,
+    exportable: true
 };

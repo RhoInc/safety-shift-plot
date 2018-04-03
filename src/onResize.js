@@ -63,7 +63,10 @@ export default function onResize() {
         .classed('selected', false)
         .select('circle')
         .style('fill', this.config.colors[0]);
-    this.wrap.select('.record-note').text('Click and drag to select points.');
+    this.wrap
+        .select('.record-note')
+        .style('text-align', 'center')
+        .text('Click and drag to select points.');
 
     //brushing
     function brushed() {
@@ -101,9 +104,13 @@ export default function onResize() {
         //footnote
         this.wrap
             .select('.record-note')
+            .style('text-align', 'right')
             .text('Details of ' + selected_data.length + ' selected points:');
         if (brush.empty()) {
-            this.wrap.select('.record-note').text('Click and drag to select points');
+            this.wrap
+                .select('.record-note')
+                .style('text-align', 'center')
+                .text('Click and drag to select points.');
             points
                 .select('circle')
                 .attr('fill-opacity', this.config.marks[0].attributes['fill-opacity']);
