@@ -13,7 +13,7 @@ Safety Shift Plot is a JavaScript library, built using Webcharts ([1](https://gi
 
 
 
-The chart uses the AdAM data standards by default, but can be customized to use any data set that is one record per measurement. Full details about chart configuration are [here](Configuration).
+The chart uses the AdAM data standards by default, but can be customized to use any data set that is one record per measurement. Full details about chart configuration are [here](https://github.com/RhoInc/safety-shift-plot/wiki/Configuration).
 
 Users can:
 * See the shift plot to compare lab and vital sign values between two time points
@@ -55,7 +55,7 @@ d3.csv('../data/ADBDS.csv', function(data) {
 
 ## Links 
 
-- [Interactive Example](https://rhoinc.github.io/viz-library/examples/0008-safetyExplorer-default/safety-shift-plot/)
+- [Interactive Example](https://rhoinc.github.io/safety-shift-plot/build/test-page/)
 - [Configuration](https://github.com/RhoInc/safety-shift-plot/wiki/Configuration) 
 - [API](https://github.com/RhoInc/safety-shift-plot/wiki/API)
 - [Technical Documentation](https://github.com/RhoInc/safety-shift-plot/wiki/Technical-Documentation) 
