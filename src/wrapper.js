@@ -12,6 +12,10 @@ import defaultSettings, {
 } from './defaultSettings';
 import clone from './util/clone';
 
+//layout and styles
+import defineLayout from './util/defineLayout';
+import defineStyles from './util/defineStyles';
+
 //webcharts
 import { createControls, createChart, createTable } from 'webcharts';
 
@@ -29,11 +33,25 @@ export default function safetyShiftPlot(element, settings) {
     const syncedSettings = syncSettings(clone(mergedSettings));
     const syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
 
+    //layout and styles
+    defineLayout(element);
+    defineStyles();
+
     //controls
-    const controls = createControls(element, { location: 'top', inputs: syncedControlInputs });
+    const controls = createControls(
+        document.querySelector(element).querySelector('#ssp-controls'),
+        {
+            location: 'top',
+            inputs: syncedControlInputs
+        }
+    );
 
     //chart
-    const chart = createChart(element, syncedSettings, controls);
+    const chart = createChart(
+        document.querySelector(element).querySelector('#ssp-chart'),
+        syncedSettings,
+        controls
+    );
     chart.on('init', onInit);
     chart.on('layout', onLayout);
     chart.on('preprocess', onPreprocess);
@@ -42,7 +60,10 @@ export default function safetyShiftPlot(element, settings) {
     chart.on('resize', onResize);
 
     //listing
-    const listing = createTable(element, listingSettings);
+    const listing = createTable(
+        document.querySelector(element).querySelector('#ssp-listing'),
+        listingSettings
+    );
     listing.init([]);
     chart.listing = listing;
 

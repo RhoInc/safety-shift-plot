@@ -1,10 +1,10 @@
 (function(global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
-        ? (module.exports = factory(require('webcharts'), require('d3')))
+        ? (module.exports = factory(require('d3'), require('webcharts')))
         : typeof define === 'function' && define.amd
-            ? define(['webcharts', 'd3'], factory)
-            : (global.safetyShiftPlot = factory(global.webCharts, global.d3));
-})(this, function(webcharts, d3) {
+            ? define(['d3', 'webcharts'], factory)
+            : (global.safetyShiftPlot = factory(global.d3, global.webCharts));
+})(this, function(d3, webcharts) {
     'use strict';
 
     if (typeof Object.assign != 'function') {
@@ -225,7 +225,11 @@
 
     var listingSettings = {
         cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
-        headers: ['Subject ID', 'Baseline Value', 'Comparison Value', 'Change', 'Percent Change']
+        headers: ['Participant ID', 'Baseline', 'Comparison', 'Change', 'Percent Change'],
+        searchable: false,
+        sortable: true,
+        pagination: false,
+        exportable: true
     };
 
     var _typeof =
@@ -391,6 +395,64 @@
         }
 
         throw new Error('Unable to copy [obj]! Its type is not supported.');
+    }
+
+    function defineLayout(element) {
+        var container = d3.select(element);
+        container
+            .append('div')
+            .classed('ssp-component', true)
+            .attr('id', 'ssp-controls');
+        container
+            .append('div')
+            .classed('ssp-component', true)
+            .attr('id', 'ssp-chart');
+        container
+            .append('div')
+            .classed('ssp-component', true)
+            .attr('id', 'ssp-listing');
+    }
+
+    function defineStyles() {
+        var styles = [
+            '#safety-shift-plot {' + '    width: 100%;' + '    display: inline-block;' + '}',
+            '.ssp-component {' +
+                '    margin: 0;' +
+                '    border: none;' +
+                '    padding: 0;' +
+                '    display: inline-block;' +
+                '}',
+
+            //controls
+            '#ssp-controls {' + '    width: 25%;' + '    float: left;' + '}',
+            '#ssp-controls .control-group {' +
+                '    width: 98%;' +
+                '    margin: 0 2% 5px 0;' +
+                '    padding: 0;' +
+                '}',
+            '#ssp-controls .control-group > * {' + '    display: inline-block;' + '}',
+            '#ssp-controls .changer {' + '    float: right;' + '    width: 50%;' + '}',
+            '#ssp-controls .wc-control-label {' +
+                '    text-align: right;' +
+                '    width: 48%;' +
+                '}',
+            '#ssp-controls .annote {' + '    width: 98%;' + '    text-align: right;' + '}',
+
+            //chart
+            '#ssp-chart {' + '    width: 36%;' + '    margin: 0 2%;' + '}',
+
+            //listing
+            '#ssp-listing {' + '    width: 35%;' + '    float: right;' + '}',
+            '#ssp-listing .wc-table table {' + '    width: 100%;' + '    display: table;' + '}',
+            '#ssp-listing .wc-table th:not(:first-child),' +
+                '#ssp-listing .wc-table td:not(:first-child) {' +
+                '    text-align: right;' +
+                '}'
+        ];
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = styles.join('\n');
+        document.getElementsByTagName('head')[0].appendChild(style);
     }
 
     function cleanData() {
@@ -807,17 +869,19 @@
     }
 
     function onLayout() {
+        //Add footnote element.
+        this.wrap
+            .insert('p', ':first-child')
+            .attr('class', 'record-note')
+            .style('text-align', 'center')
+            .style('font-weight', 'bold')
+            .text('Click and drag to select points.');
+
         //Add header element in which to list visits at which measure is captured.
         this.wrap.append('p', 'svg').attr('class', 'possible-visits');
 
         //Designate chart container for brushing.
         this.wrap.classed('brushable', true);
-
-        //Add footnote element.
-        this.wrap
-            .append('p')
-            .attr('class', 'record-note')
-            .text('Click and drag to select points');
 
         //Customize measure, baseline, and comparison controls.
         custmoizeMeasureControl.call(this);
@@ -1118,7 +1182,10 @@
             .classed('selected', false)
             .select('circle')
             .style('fill', this.config.colors[0]);
-        this.wrap.select('.record-note').text('Click and drag to select points.');
+        this.wrap
+            .select('.record-note')
+            .style('text-align', 'center')
+            .text('Click and drag to select points.');
 
         //brushing
         function brushed() {
@@ -1148,6 +1215,11 @@
             var selected_data = selected_points.data().map(function(m) {
                 return m.values.raw[0];
             });
+            selected_data.forEach(function(d) {
+                d.shiftx = decim(d.shiftx);
+                d.shifty = decim(d.shifty);
+                d.chg = decim(d.chg);
+            });
             this.listing.draw(selected_data);
             if (selected_data.length === 0) this.listing.wrap.style('display', 'none');
             else this.listing.wrap.style('display', 'block');
@@ -1155,9 +1227,13 @@
             //footnote
             this.wrap
                 .select('.record-note')
+                .style('text-align', 'right')
                 .text('Details of ' + selected_data.length + ' selected points:');
             if (brush.empty()) {
-                this.wrap.select('.record-note').text('Click and drag to select points');
+                this.wrap
+                    .select('.record-note')
+                    .style('text-align', 'center')
+                    .text('Click and drag to select points.');
                 points
                     .select('circle')
                     .attr('fill-opacity', this.config.marks[0].attributes['fill-opacity']);
@@ -1215,6 +1291,7 @@
 
     //polyfills
     //settings
+    //layout and styles
     //webcharts
     //chart callbacks
     function safetyShiftPlot(element, settings) {
@@ -1223,14 +1300,25 @@
         var syncedSettings = syncSettings(clone(mergedSettings));
         var syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
 
+        //layout and styles
+        defineLayout(element);
+        defineStyles();
+
         //controls
-        var controls = webcharts.createControls(element, {
-            location: 'top',
-            inputs: syncedControlInputs
-        });
+        var controls = webcharts.createControls(
+            document.querySelector(element).querySelector('#ssp-controls'),
+            {
+                location: 'top',
+                inputs: syncedControlInputs
+            }
+        );
 
         //chart
-        var chart = webcharts.createChart(element, syncedSettings, controls);
+        var chart = webcharts.createChart(
+            document.querySelector(element).querySelector('#ssp-chart'),
+            syncedSettings,
+            controls
+        );
         chart.on('init', onInit);
         chart.on('layout', onLayout);
         chart.on('preprocess', onPreprocess);
@@ -1239,7 +1327,10 @@
         chart.on('resize', onResize);
 
         //listing
-        var listing = webcharts.createTable(element, listingSettings);
+        var listing = webcharts.createTable(
+            document.querySelector(element).querySelector('#ssp-listing'),
+            listingSettings
+        );
         listing.init([]);
         chart.listing = listing;
 

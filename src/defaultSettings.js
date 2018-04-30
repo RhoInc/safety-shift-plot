@@ -93,5 +93,9 @@ export function syncControlInputs(controlInputs, settings) {
 
 export const listingSettings = {
     cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
-    headers: ['Subject ID', 'Baseline Value', 'Comparison Value', 'Change', 'Percent Change']
+    headers: ['Participant ID', 'Baseline', 'Comparison', 'Change', 'Percent Change'],
+    searchable: false,
+    sortable: true,
+    pagination: false,
+    exportable: true
 };

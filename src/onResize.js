@@ -63,7 +63,10 @@ export default function onResize() {
         .classed('selected', false)
         .select('circle')
         .style('fill', this.config.colors[0]);
-    this.wrap.select('.record-note').text('Click and drag to select points.');
+    this.wrap
+        .select('.record-note')
+        .style('text-align', 'center')
+        .text('Click and drag to select points.');
 
     //brushing
     function brushed() {
@@ -89,6 +92,11 @@ export default function onResize() {
 
         //redraw the table with the new data
         var selected_data = selected_points.data().map(m => m.values.raw[0]);
+        selected_data.forEach(d => {
+            d.shiftx = decim(d.shiftx);
+            d.shifty = decim(d.shifty);
+            d.chg = decim(d.chg);
+        });
         this.listing.draw(selected_data);
         if (selected_data.length === 0) this.listing.wrap.style('display', 'none');
         else this.listing.wrap.style('display', 'block');
@@ -96,9 +104,13 @@ export default function onResize() {
         //footnote
         this.wrap
             .select('.record-note')
+            .style('text-align', 'right')
             .text('Details of ' + selected_data.length + ' selected points:');
         if (brush.empty()) {
-            this.wrap.select('.record-note').text('Click and drag to select points');
+            this.wrap
+                .select('.record-note')
+                .style('text-align', 'center')
+                .text('Click and drag to select points.');
             points
                 .select('circle')
                 .attr('fill-opacity', this.config.marks[0].attributes['fill-opacity']);
