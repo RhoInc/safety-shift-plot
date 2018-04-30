@@ -1,6 +1,8 @@
 export const rendererSpecificSettings = {
     id_col: 'USUBJID',
-    time_col: 'VISIT',
+    time_col: 'VISITN',
+    visit_col: 'VISIT',
+    visit_order_col: 'VISITNUM',
     measure_col: 'TEST',
     value_col: 'STRESN',
     start_value: null,

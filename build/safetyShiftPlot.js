@@ -132,7 +132,9 @@
 
     var rendererSpecificSettings = {
         id_col: 'USUBJID',
-        time_col: 'VISIT',
+        time_col: 'VISITN',
+        visit_col: 'VISIT',
+        visit_order_col: 'VISITNUM',
         measure_col: 'TEST',
         value_col: 'STRESN',
         start_value: null,
@@ -535,14 +537,41 @@
     function getVisits() {
         var _this = this;
 
-        this.visits = d3
-            .set(
-                this.initial_data.map(function(d) {
-                    return d[_this.config.time_col];
+        if (
+            this.config.visit_order_col &&
+            this.initial_data[0].hasOwnProperty(this.config.visit_order_col)
+        )
+            this.visits = d3
+                .set(
+                    this.initial_data.map(function(d) {
+                        return d[_this.config.visit_col] + '||' + d[_this.config.visit_order_col];
+                    })
+                )
+                .values()
+                .sort(function(a, b) {
+                    var aSplit = a.split('||');
+                    var aVisit = aSplit[0];
+                    var aOrder = aSplit[1];
+                    var bSplit = b.split('||');
+                    var bVisit = bSplit[0];
+                    var bOrder = bSplit[1];
+                    var diff = aOrder - bOrder;
+                    return diff
+                        ? diff
+                        : aOrder < bOrder ? -1 : aOrder > bOrder ? 1 : aVisit < bVisit ? -1 : 1;
                 })
-            )
-            .values()
-            .sort();
+                .map(function(visit) {
+                    return visit.split('||')[0];
+                });
+        else
+            this.visits = d3
+                .set(
+                    this.initial_data.map(function(d) {
+                        return d[_this.config.visit_col];
+                    })
+                )
+                .values()
+                .sort();
     }
 
     function updateControlInputs() {
@@ -566,7 +595,7 @@
                 return d[config.id_col];
             })
             .key(function(d) {
-                return d[config.time_col];
+                return d[config.visit_col];
             })
             .key(function(d) {
                 return d[config.measure_col];
@@ -944,7 +973,18 @@
         annotation.text(currentObs + ' of ' + totalObs + units + ' shown (' + percentage + ')');
     }
 
-    function resetListing() {
+    function reset() {
+        this.svg.selectAll('g.boxplot').remove();
+        this.svg
+            .selectAll('g.point')
+            .classed('selected', false)
+            .select('circle')
+            .style('fill', this.config.colors[0]);
+        this.wrap
+            .select('.record-note')
+            .style('text-align', 'center')
+            .text('Click and drag to select points.');
+        this.svg.select('line.identity').remove();
         this.listing.draw([]);
         this.listing.wrap.style('display', 'none');
     }
@@ -953,11 +993,11 @@
         //Annotate selected and total number of participants.
         updateParticipantCount(this, '.annote');
 
-        //Reset listing.
-        resetListing.call(this);
+        //Reset things.
+        reset.call(this);
     }
 
-    function addBoxPlot(
+    function drawBoxPlot(
         svg$$1,
         results,
         height,
@@ -1106,19 +1146,13 @@
             });
     }
 
-    function onResize() {
-        var _this = this;
-
-        var decim = d3.format('.2f');
-        // Draw box plots
-        this.svg.selectAll('g.boxplot').remove();
-
+    function addBoxPlots() {
         // Y-axis box plot
         var yValues = this.current_data.map(function(d) {
             return d.values.y;
         });
         var ybox = this.svg.append('g').attr('class', 'yMargin');
-        addBoxPlot(ybox, yValues, this.plot_height, 1, this.y_dom, 10, '#bbb', 'white');
+        drawBoxPlot(ybox, yValues, this.plot_height, 1, this.y_dom, 10, '#bbb', 'white');
         ybox
             .select('g.boxplot')
             .attr(
@@ -1131,7 +1165,7 @@
             return d.values.x;
         });
         var xbox = this.svg.append('g').attr('class', 'xMargin');
-        addBoxPlot(
+        drawBoxPlot(
             xbox, //svg element
             xValues, //values
             1, //height
@@ -1146,8 +1180,11 @@
         xbox
             .select('g.boxplot')
             .attr('transform', 'translate(0,' + -(this.config.margin.top / 2) + ')');
+    }
 
-        //get list of visits
+    function listVisits() {
+        var _this = this;
+
         var possibleVisits = d3
             .set(
                 this.initial_data
@@ -1155,11 +1192,13 @@
                         return f[_this.config.measure_col] === _this.config.measure;
                     })
                     .map(function(d) {
-                        return d[_this.config.time_col];
+                        return d[_this.config.visit_col];
                     })
             )
-            .values()
-            .sort(webcharts.dataOps.naturalSorter);
+            .values();
+        possibleVisits.sort(function(a, b) {
+            return _this.visits.indexOf(a) - _this.visits.indexOf(b);
+        });
 
         this.wrap
             .select('.possible-visits')
@@ -1169,27 +1208,13 @@
                     possibleVisits.join(', ') +
                     '.'
             );
+    }
 
-        //Expand the domains a bit so that points on the edge are brushable
-        this.x_dom[0] = this.x_dom[0] < 0 ? this.x_dom[0] * 1.01 : this.x_dom[0] * 0.99;
-        this.x_dom[1] = this.x_dom[1] < 0 ? this.x_dom[1] * 0.99 : this.x_dom[1] * 1.01;
-        this.y_dom[0] = this.y_dom[0] < 0 ? this.y_dom[0] * 1.01 : this.y_dom[0] * 0.99;
-        this.y_dom[1] = this.y_dom[1] < 0 ? this.y_dom[1] * 0.99 : this.y_dom[1] * 1.01;
+    function addBrush() {
+        var decim = d3.format('.2f');
 
-        //reset view
-        this.svg
-            .selectAll('g.point')
-            .classed('selected', false)
-            .select('circle')
-            .style('fill', this.config.colors[0]);
-        this.wrap
-            .select('.record-note')
-            .style('text-align', 'center')
-            .text('Click and drag to select points.');
-
-        //brushing
         function brushed() {
-            var _this2 = this;
+            var _this = this;
 
             var extent$$1 = brush.extent();
             var points = this.svg.selectAll('g.point').classed('selected', false);
@@ -1198,8 +1223,8 @@
 
             var selected_points = points
                 .filter(function(d) {
-                    var cx = _this2.x(+d.values.x);
-                    var cy = _this2.y(+d.values.y);
+                    var cx = _this.x(+d.values.x);
+                    var cy = _this.y(+d.values.y);
                     return (
                         extent$$1[0][0] <= cx &&
                         cx <= extent$$1[1][0] &&
@@ -1254,25 +1279,24 @@
             stroke: '#ccc',
             'fill-opacity': 0.1
         });
+    }
 
-        //add an equality line
-        var chart = this;
+    function addEqualityLine() {
+        var overallMin = d3.min([this.x.domain()[0], this.y.domain()[0]]);
+        var overallMax = d3.max([this.x.domain()[1], this.y.domain()[1]]);
 
-        var overallMin = d3.min([chart.x.domain()[0], chart.y.domain()[0]]);
-        var overallMax = d3.max([chart.x.domain()[1], chart.y.domain()[1]]);
-
-        this.svg.select('line.identity').remove();
         this.svg
             .append('line')
-            .attr('x1', chart.x(overallMin))
-            .attr('x2', chart.x(overallMax))
-            .attr('y1', chart.y(overallMin))
-            .attr('y2', chart.y(overallMax))
+            .attr('x1', this.x(overallMin))
+            .attr('x2', this.x(overallMax))
+            .attr('y1', this.y(overallMin))
+            .attr('y2', this.y(overallMax))
             .attr('stroke', 'black')
             .attr('clip-path', 'URL(#1)')
             .attr('class', 'identity');
+    }
 
-        //Add tooltip to axis labels listing selected visits.
+    function addTooltipsToAxisLabels() {
         this.svg
             .selectAll('.x.axis .axis-title')
             .append('title')
@@ -1289,6 +1313,29 @@
             );
     }
 
+    function onResize() {
+        //Add univariate box plots to top and right margins.
+        addBoxPlots.call(this);
+
+        //Annotate list of visits at which measure has results.
+        listVisits.call(this);
+
+        //Expand the domains a bit so that points on the edge are brushable
+        this.x_dom[0] = this.x_dom[0] < 0 ? this.x_dom[0] * 1.01 : this.x_dom[0] * 0.99;
+        this.x_dom[1] = this.x_dom[1] < 0 ? this.x_dom[1] * 0.99 : this.x_dom[1] * 1.01;
+        this.y_dom[0] = this.y_dom[0] < 0 ? this.y_dom[0] * 1.01 : this.y_dom[0] * 0.99;
+        this.y_dom[1] = this.y_dom[1] < 0 ? this.y_dom[1] * 0.99 : this.y_dom[1] * 1.01;
+
+        //Add brush functionality.
+        addBrush.call(this);
+
+        //add an equality line
+        addEqualityLine.call(this);
+
+        //Add tooltip to axis labels listing selected visits.
+        addTooltipsToAxisLabels.call(this);
+    }
+
     //polyfills
     //settings
     //layout and styles
@@ -1296,6 +1343,7 @@
     //chart callbacks
     function safetyShiftPlot(element, settings) {
         //settings
+        if (settings.time_col && !settings.visit_col) settings.visit_col = settings.time_col; // prevent breaking backwards compatibility
         var mergedSettings = Object.assign({}, clone(defaultSettings), clone(settings));
         var syncedSettings = syncSettings(clone(mergedSettings));
         var syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
