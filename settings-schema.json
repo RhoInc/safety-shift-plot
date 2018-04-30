@@ -1,0 +1,100 @@
+{
+    "title": "settings",
+    "description": "JSON schema for the configuration of safety-outlier-explorer",
+    "overview": "The most straightforward way to customize a Safety Shift Plot is by using a configuration object whose properties describe the chart's behavior and appearance. Since the Safety Shift Plot is a Webcharts `chart` object, many default Webcharts settings are set in the [defaultSettings.js file](https://github.com/RhoInc/safety-shift-plot/blob/master/src/default-settings.js) as [described below](#Webcharts-Settings). Refer to the [Webcharts documentation](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration) for more details on these settings.\nIn addition to the standard Webcharts settings several custom settings not available in the base Webcharts library have been added to the Safety Shift Plot to facilitate data mapping and other custom functionality. These custom settings are described in detail below. All defaults can be overwritten by users.",
+    "version": "2.1.0",
+    "type": "object",
+    "properties": {
+        "id_col": {
+            "type": "string",
+            "title": "ID",
+            "description": "unique identifier variable name",
+            "default": "USUBJID"
+        },
+        "time_col": {
+            "type": "string",
+            "title": "Visit",
+            "description": "visit variable name",
+            "default": "VISIT"
+        },
+        "measure_col": {
+            "type": "string",
+            "title": "Measure",
+            "description": "measure variable name",
+            "default": "TEST"
+        },
+        "unit_col": {
+            "type": "string",
+            "title": "Unit",
+            "description": "measure unit variable name",
+            "default": "STRESU"
+        },
+        "value_col": {
+            "type": "string",
+            "title": "Result",
+            "description": "result variable name",
+            "default": "STRESN"
+        },
+        "start_value": {
+            "type": "string",
+            "title": "Initially Displayed Measure",
+            "description": "value of measure to display initially"
+        },
+        "x_params": {
+            "type": "object",
+            "title": "Baseline Settings",
+            "description": "an object that defines the baseline value",
+            "properties": {
+                "visits": {
+                    "type": "array",
+                    "title": "Baseline Visits",
+                    "description": "an array of visit values with which to define the baseline value"
+                },
+                "stat": {
+                    "type": "string",
+                    "title": "Baseline Statistic",
+                    "description": "the mathematical function with which to aggregate the baseline visit(s)",
+                    "default": "mean"
+                }
+            }
+        },
+        "y_params": {
+            "type": "object",
+            "title": "Comparison Settings",
+            "description": "an object that defines the comparison (or post-baseline) value",
+            "properties": {
+                "visits": {
+                    "type": "array",
+                    "title": "Comparison Visits",
+                    "description": "an array of visit values with which to define the comparison value"
+                },
+                "stat": {
+                    "type": "string",
+                    "title": "Comparison Statistic",
+                    "description": "the mathematical function with which to aggregate the comparison visit(s)",
+                    "default": "mean"
+                }
+            }
+        },
+        "filters": {
+            "type": "array",
+            "title": "Filters",
+            "description": "an array of filter variables and associated metadata",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value_col": {
+                        "type": "string",
+                        "title": "Variable Name",
+                        "description": "filter variable name"
+                    },
+                    "label": {
+                        "type": "string",
+                        "title": "Variable Label",
+                        "description": "filter variable label"
+                    }
+                }
+            }
+        }
+    }
+}

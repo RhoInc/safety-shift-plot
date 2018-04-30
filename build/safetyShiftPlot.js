@@ -130,8 +130,7 @@
         });
     }
 
-    var defaultSettings = {
-        //Addition settings for this template
+    var rendererSpecificSettings = {
         id_col: 'USUBJID',
         time_col: 'VISITN',
         visit_col: 'VISIT',
@@ -141,10 +140,10 @@
         start_value: null,
         x_params: { visits: null, stat: 'mean' },
         y_params: { visits: null, stat: 'mean' },
-        filters: null,
-        measure: null, // set in syncSettings()
+        filters: null
+    };
 
-        //Standard webcharts settings
+    var webchartsSettings = {
         x: {
             column: 'shiftx',
             type: 'linear',
@@ -176,6 +175,8 @@
         margin: { right: 25, top: 25 },
         aspect: 1
     };
+
+    var defaultSettings = Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
     // Replicate settings in multiple places in the settings object
     function syncSettings(settings) {
