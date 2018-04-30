@@ -11,6 +11,7 @@ import defaultSettings, {
     listingSettings
 } from './defaultSettings';
 import clone from './util/clone';
+import deepMerge from './util/deepMerge';
 
 //layout and styles
 import defineLayout from './util/defineLayout';
@@ -30,7 +31,9 @@ import onResize from './onResize';
 export default function safetyShiftPlot(element, settings) {
     //settings
     if (settings.time_col && !settings.visit_col) settings.visit_col = settings.time_col; // prevent breaking backwards compatibility
-    const mergedSettings = Object.assign({}, clone(defaultSettings), clone(settings));
+    const mergedSettings = deepMerge(defaultSettings, settings, {
+        arrayMerge: (destination, source) => source
+    });
     const syncedSettings = syncSettings(clone(mergedSettings));
     const syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
 
