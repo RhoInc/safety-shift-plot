@@ -1,8 +1,21 @@
-import './util/objectAssign';
+//polyfills
+import './polyfills/object-assign';
+import './polyfills/array-find';
+import './polyfills/array-findIndex';
 
-import defaultSettings, { syncSettings, controlInputs, syncControlInputs } from './defaultSettings';
+//settings
+import defaultSettings, {
+    syncSettings,
+    controlInputs,
+    syncControlInputs,
+    listingSettings
+} from './defaultSettings';
+import clone from './util/clone';
 
-import { createControls, createChart } from 'webcharts';
+//webcharts
+import { createControls, createChart, createTable } from 'webcharts';
+
+//chart callbacks
 import onInit from './onInit';
 import onLayout from './onLayout';
 import onPreprocess from './onPreprocess';
@@ -11,17 +24,15 @@ import onDraw from './onDraw';
 import onResize from './onResize';
 
 export default function safetyShiftPlot(element, settings) {
-    //Merge user's settings with default settings.
-    const mergedSettings = Object.assign({}, defaultSettings, settings);
+    //settings
+    const mergedSettings = Object.assign({}, clone(defaultSettings), clone(settings));
+    const syncedSettings = syncSettings(clone(mergedSettings));
+    const syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
 
-    //Sync properties within merged settings, e.g. data mappings.
-    const syncedSettings = syncSettings(mergedSettings);
-
-    //Sync control inputs with merged settings.
-    const syncedControlInputs = syncControlInputs(controlInputs, syncedSettings);
+    //controls
     const controls = createControls(element, { location: 'top', inputs: syncedControlInputs });
 
-    //Create chart.
+    //chart
     const chart = createChart(element, syncedSettings, controls);
     chart.on('init', onInit);
     chart.on('layout', onLayout);
@@ -29,6 +40,11 @@ export default function safetyShiftPlot(element, settings) {
     chart.on('datatransform', onDataTransform);
     chart.on('draw', onDraw);
     chart.on('resize', onResize);
+
+    //listing
+    const listing = createTable(element, listingSettings);
+    listing.init([]);
+    chart.listing = listing;
 
     return chart;
 }

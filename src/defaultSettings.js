@@ -74,19 +74,24 @@ export const controlInputs = [
 // Map values from settings to control inputs
 export function syncControlInputs(controlInputs, settings) {
     //Define filter objects.
-    if (settings.filters) {
-        settings.filters.forEach((d, i) => {
-            d.type = 'subsetter';
-            d.value_col = d.value_col ? d.value_col : d;
-            d.label = d.label ? d.label : d.value_col ? d.value_col : d;
+    if (Array.isArray(settings.filters) && settings.filters.length)
+        settings.filters = settings.filters.map(filter => {
+            const filterObject = {
+                value_col: filter.value_col || filter
+            };
+            filterObject.label = filter.label || filterObject.value_col;
+            filterObject.type = 'subsetter';
+
+            if (filter instanceof Object) Object.assign(filterObject, filter);
+
+            return filterObject;
         });
-    }
+    else delete settings.filters;
 
     return controlInputs;
 }
 
-// Default Settings for custom linked table
-export const tableSettings = {
+export const listingSettings = {
     cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
     headers: ['Subject ID', 'Baseline Value', 'Comparison Value', 'Change', 'Percent Change']
 };

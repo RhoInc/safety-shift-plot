@@ -8,28 +8,126 @@
     'use strict';
 
     if (typeof Object.assign != 'function') {
-        (function() {
-            Object.assign = function(target) {
+        // Must be writable: true, enumerable: false, configurable: true
+        Object.defineProperty(Object, 'assign', {
+            value: function assign(target, varArgs) {
+                // .length of function is 2
                 'use strict';
 
-                if (target === undefined || target === null) {
+                if (target == null) {
+                    // TypeError if undefined or null
                     throw new TypeError('Cannot convert undefined or null to object');
                 }
 
-                var output = Object(target);
+                var to = Object(target);
+
                 for (var index = 1; index < arguments.length; index++) {
-                    var source = arguments[index];
-                    if (source !== undefined && source !== null) {
-                        for (var nextKey in source) {
-                            if (source.hasOwnProperty(nextKey)) {
-                                output[nextKey] = source[nextKey];
+                    var nextSource = arguments[index];
+
+                    if (nextSource != null) {
+                        // Skip over if undefined or null
+                        for (var nextKey in nextSource) {
+                            // Avoid bugs when hasOwnProperty is shadowed
+                            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                                to[nextKey] = nextSource[nextKey];
                             }
                         }
                     }
                 }
-                return output;
-            };
-        })();
+
+                return to;
+            },
+            writable: true,
+            configurable: true
+        });
+    }
+
+    if (!Array.prototype.find) {
+        Object.defineProperty(Array.prototype, 'find', {
+            value: function value(predicate) {
+                // 1. Let O be ? ToObject(this value).
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+
+                var o = Object(this);
+
+                // 2. Let len be ? ToLength(? Get(O, 'length')).
+                var len = o.length >>> 0;
+
+                // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate must be a function');
+                }
+
+                // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+                var thisArg = arguments[1];
+
+                // 5. Let k be 0.
+                var k = 0;
+
+                // 6. Repeat, while k < len
+                while (k < len) {
+                    // a. Let Pk be ! ToString(k).
+                    // b. Let kValue be ? Get(O, Pk).
+                    // c. Let testResult be ToBoolean(? Call(predicate, T, � kValue, k, O �)).
+                    // d. If testResult is true, return kValue.
+                    var kValue = o[k];
+                    if (predicate.call(thisArg, kValue, k, o)) {
+                        return kValue;
+                    }
+                    // e. Increase k by 1.
+                    k++;
+                }
+
+                // 7. Return undefined.
+                return undefined;
+            }
+        });
+    }
+
+    if (!Array.prototype.findIndex) {
+        Object.defineProperty(Array.prototype, 'findIndex', {
+            value: function value(predicate) {
+                // 1. Let O be ? ToObject(this value).
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+
+                var o = Object(this);
+
+                // 2. Let len be ? ToLength(? Get(O, "length")).
+                var len = o.length >>> 0;
+
+                // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate must be a function');
+                }
+
+                // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+                var thisArg = arguments[1];
+
+                // 5. Let k be 0.
+                var k = 0;
+
+                // 6. Repeat, while k < len
+                while (k < len) {
+                    // a. Let Pk be ! ToString(k).
+                    // b. Let kValue be ? Get(O, Pk).
+                    // c. Let testResult be ToBoolean(? Call(predicate, T, � kValue, k, O �)).
+                    // d. If testResult is true, return k.
+                    var kValue = o[k];
+                    if (predicate.call(thisArg, kValue, k, o)) {
+                        return k;
+                    }
+                    // e. Increase k by 1.
+                    k++;
+                }
+
+                // 7. Return -1.
+                return -1;
+            }
+        });
     }
 
     var rendererSpecificSettings = {
@@ -108,22 +206,223 @@
     // Map values from settings to control inputs
     function syncControlInputs(controlInputs, settings) {
         //Define filter objects.
-        if (settings.filters) {
-            settings.filters.forEach(function(d, i) {
-                d.type = 'subsetter';
-                d.value_col = d.value_col ? d.value_col : d;
-                d.label = d.label ? d.label : d.value_col ? d.value_col : d;
+        if (Array.isArray(settings.filters) && settings.filters.length)
+            settings.filters = settings.filters.map(function(filter) {
+                var filterObject = {
+                    value_col: filter.value_col || filter
+                };
+                filterObject.label = filter.label || filterObject.value_col;
+                filterObject.type = 'subsetter';
+
+                if (filter instanceof Object) Object.assign(filterObject, filter);
+
+                return filterObject;
             });
-        }
+        else delete settings.filters;
 
         return controlInputs;
     }
 
-    // Default Settings for custom linked table
-    var tableSettings = {
+    var listingSettings = {
         cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
         headers: ['Subject ID', 'Baseline Value', 'Comparison Value', 'Change', 'Percent Change']
     };
+
+    var _typeof =
+        typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
+            ? function(obj) {
+                  return typeof obj;
+              }
+            : function(obj) {
+                  return obj &&
+                      typeof Symbol === 'function' &&
+                      obj.constructor === Symbol &&
+                      obj !== Symbol.prototype
+                      ? 'symbol'
+                      : typeof obj;
+              };
+
+    var asyncGenerator = (function() {
+        function AwaitValue(value) {
+            this.value = value;
+        }
+
+        function AsyncGenerator(gen) {
+            var front, back;
+
+            function send(key, arg) {
+                return new Promise(function(resolve, reject) {
+                    var request = {
+                        key: key,
+                        arg: arg,
+                        resolve: resolve,
+                        reject: reject,
+                        next: null
+                    };
+
+                    if (back) {
+                        back = back.next = request;
+                    } else {
+                        front = back = request;
+                        resume(key, arg);
+                    }
+                });
+            }
+
+            function resume(key, arg) {
+                try {
+                    var result = gen[key](arg);
+                    var value = result.value;
+
+                    if (value instanceof AwaitValue) {
+                        Promise.resolve(value.value).then(
+                            function(arg) {
+                                resume('next', arg);
+                            },
+                            function(arg) {
+                                resume('throw', arg);
+                            }
+                        );
+                    } else {
+                        settle(result.done ? 'return' : 'normal', result.value);
+                    }
+                } catch (err) {
+                    settle('throw', err);
+                }
+            }
+
+            function settle(type, value) {
+                switch (type) {
+                    case 'return':
+                        front.resolve({
+                            value: value,
+                            done: true
+                        });
+                        break;
+
+                    case 'throw':
+                        front.reject(value);
+                        break;
+
+                    default:
+                        front.resolve({
+                            value: value,
+                            done: false
+                        });
+                        break;
+                }
+
+                front = front.next;
+
+                if (front) {
+                    resume(front.key, front.arg);
+                } else {
+                    back = null;
+                }
+            }
+
+            this._invoke = send;
+
+            if (typeof gen.return !== 'function') {
+                this.return = undefined;
+            }
+        }
+
+        if (typeof Symbol === 'function' && Symbol.asyncIterator) {
+            AsyncGenerator.prototype[Symbol.asyncIterator] = function() {
+                return this;
+            };
+        }
+
+        AsyncGenerator.prototype.next = function(arg) {
+            return this._invoke('next', arg);
+        };
+
+        AsyncGenerator.prototype.throw = function(arg) {
+            return this._invoke('throw', arg);
+        };
+
+        AsyncGenerator.prototype.return = function(arg) {
+            return this._invoke('return', arg);
+        };
+
+        return {
+            wrap: function(fn) {
+                return function() {
+                    return new AsyncGenerator(fn.apply(this, arguments));
+                };
+            },
+            await: function(value) {
+                return new AwaitValue(value);
+            }
+        };
+    })();
+
+    function clone(obj) {
+        var copy;
+
+        //boolean, number, string, null, undefined
+        if ('object' != (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) || null == obj)
+            return obj;
+
+        //date
+        if (obj instanceof Date) {
+            copy = new Date();
+            copy.setTime(obj.getTime());
+            return copy;
+        }
+
+        //array
+        if (obj instanceof Array) {
+            copy = [];
+            for (var i = 0, len = obj.length; i < len; i++) {
+                copy[i] = clone(obj[i]);
+            }
+            return copy;
+        }
+
+        //object
+        if (obj instanceof Object) {
+            copy = {};
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+            }
+            return copy;
+        }
+
+        throw new Error('Unable to copy [obj]! Its type is not supported.');
+    }
+
+    function checkFilters() {
+        var _this = this;
+
+        if (this.config.filters)
+            this.config.filters = this.config.filters.filter(function(filter) {
+                var variableExists = _this.raw_data[0].hasOwnProperty(filter.value_col);
+                var nLevels = d3
+                    .set(
+                        _this.raw_data.map(function(d) {
+                            return d[filter.value_col];
+                        })
+                    )
+                    .values().length;
+
+                if (!variableExists)
+                    console.warn(
+                        ' The [ ' +
+                            filter.label +
+                            ' ] filter has been removed because the variable does not exist.'
+                    );
+                else if (nLevels < 2)
+                    console.warn(
+                        'The [ ' +
+                            filter.label +
+                            ' ] filter has been removed because the variable has only one level.'
+                    );
+
+                return variableExists && nLevels > 1;
+            });
+    }
 
     function preprocessData(rawData) {
         var config = this.config;
@@ -220,32 +519,7 @@
         var config = this.config;
 
         // Remove filters for variables with 0 or 1 levels
-        var chart = this;
-
-        if (this.config.filters != null) {
-            this.config.filters = this.config.filters.filter(function(d) {
-                if (d.type != 'subsetter') {
-                    return true;
-                } else {
-                    var levels = d3
-                        .set(
-                            chart.raw_data.map(function(f) {
-                                return f[d.value_col];
-                            })
-                        )
-                        .values();
-                    if (levels.length < 2) {
-                        console.warn(
-                            d.value_col +
-                                ' filter not shown since the variable has less than 2 levels'
-                        );
-                    }
-                    return levels.length >= 2;
-                }
-            });
-        }
-
-        //Define raw data.
+        checkFilters.call(this);
         this.allData = this.raw_data;
         this.allData.forEach(function(d) {
             d[config.measure_col] = d[config.measure_col].trim();
@@ -303,6 +577,123 @@
                 return d.shifty;
             })
         );
+    }
+
+    function custmoizeMeasureControl() {
+        var _this = this;
+
+        var measureSelect = this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(f) {
+                return f.option === 'measure';
+            })
+            .select('select');
+        measureSelect.on('change', function() {
+            _this.config.measure = measureSelect.select('option:checked').property('text');
+
+            //Redefine raw and preprocessed measure data, x-domain, and y-domain.
+            _this.measureData = _this.allData.filter(function(d) {
+                return d[_this.config.measure_col] === _this.config.measure;
+            });
+            _this.raw_data = preprocessData.call(_this, _this.measureData);
+            _this.config.x.domain = d3.extent(
+                _this.raw_data.map(function(d) {
+                    return d.shiftx;
+                })
+            );
+            _this.config.y.domain = d3.extent(
+                _this.raw_data.map(function(d) {
+                    return d.shifty;
+                })
+            );
+
+            //Redefine and preprocess filtered data and redraw chart.
+            if (_this.config.filters) {
+                _this.filteredData = _this.measureData.filter(function(d) {
+                    var filtered = false;
+                    _this.config.filters.forEach(function(filter) {
+                        return (filtered =
+                            filtered === false && filter.value !== 'All'
+                                ? d[filter.value_col] !== filter.value
+                                : filtered);
+                    });
+                    return !filtered;
+                });
+                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
+                _this.draw(filteredPreprocessedData);
+            } else {
+                _this.filteredData = _this.measureData;
+                _this.draw(_this.raw_data);
+            }
+        });
+    }
+
+    function customizeBaselineControl() {
+        var _this = this;
+
+        var baselineSelect = this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(f) {
+                return f.option === 'x_params_visits';
+            })
+            .select('select');
+        baselineSelect
+            .selectAll('option')
+            .filter(function(f) {
+                return _this.config.x_params.visits.indexOf(f) > -1;
+            })
+            .attr('selected', 'selected');
+        baselineSelect.on('change', function() {
+            _this.config.x_params.visits = baselineSelect.selectAll('option:checked').data();
+
+            //Redefine preprocessed measure data and x-domain.
+            _this.raw_data = preprocessData.call(_this, _this.measureData);
+            _this.config.x.domain = d3.extent(
+                _this.raw_data.map(function(d) {
+                    return d.shiftx;
+                })
+            );
+
+            //Preprocess filtered data and redraw chart.
+            if (_this.config.filters) {
+                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
+                _this.draw(filteredPreprocessedData);
+            } else _this.draw(_this.raw_data);
+        });
+    }
+
+    function customizeComparisonControl() {
+        var _this = this;
+
+        var comparisonSelect = this.controls.wrap
+            .selectAll('.control-group')
+            .filter(function(f) {
+                return f.option === 'y_params_visits';
+            })
+            .select('select');
+        comparisonSelect
+            .selectAll('option')
+            .filter(function(f) {
+                return _this.config.y_params.visits.indexOf(f) > -1;
+            })
+            .attr('selected', 'selected');
+        comparisonSelect.on('change', function() {
+            _this.config.y_params.visits = comparisonSelect.selectAll('option:checked').data();
+
+            //Redefine preprocessed measure data and y-domain.
+            _this.raw_data = preprocessData.call(_this, _this.measureData);
+            _this.config.y.domain = d3.extent(
+                _this.raw_data.map(function(d) {
+                    return d.shifty;
+                })
+            );
+
+            //Preprocess filtered data and redraw chart.
+            if (_this.config.filters) {
+                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
+                _this.draw(filteredPreprocessedData);
+            } else _this.draw(_this.raw_data);
+        });
     }
 
     function addFilters(chart) {
@@ -363,19 +754,17 @@
     }
 
     function onLayout() {
-        var _this = this;
-
         //Add header element in which to list visits at which measure is captured.
         this.wrap.append('p', 'svg').attr('class', 'possible-visits');
+
         //Designate chart container for brushing.
         this.wrap.classed('brushable', true);
+
         //Add footnote element.
         this.wrap
             .append('p')
             .attr('class', 'record-note')
             .text('Click and drag to select points');
-        //Initialize detail table.
-        this.detailTable = webcharts.createTable(this.wrap.node(), tableSettings).init([]);
 
         //Update the dropdown options
         this.controls.config.inputs.filter(function(input) {
@@ -390,113 +779,10 @@
         //Force controls to be redrawn.
         this.controls.layout();
 
-        //Customize measure control.
-        var measureSelect = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(f) {
-                return f.option === 'measure';
-            })
-            .select('select');
-        measureSelect.on('change', function() {
-            _this.config.measure = measureSelect.select('option:checked').property('text');
-
-            //Redefine raw and preprocessed measure data, x-domain, and y-domain.
-            _this.measureData = _this.allData.filter(function(d) {
-                return d[_this.config.measure_col] === _this.config.measure;
-            });
-            _this.raw_data = preprocessData.call(_this, _this.measureData);
-            _this.config.x.domain = d3.extent(
-                _this.raw_data.map(function(d) {
-                    return d.shiftx;
-                })
-            );
-            _this.config.y.domain = d3.extent(
-                _this.raw_data.map(function(d) {
-                    return d.shifty;
-                })
-            );
-
-            //Redefine and preprocess filtered data and redraw chart.
-            if (_this.config.filters) {
-                _this.filteredData = _this.measureData.filter(function(d) {
-                    var filtered = false;
-                    _this.config.filters.forEach(function(filter) {
-                        return (filtered =
-                            filtered === false && filter.value !== 'All'
-                                ? d[filter.value_col] !== filter.value
-                                : filtered);
-                    });
-                    return !filtered;
-                });
-                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
-                _this.draw(filteredPreprocessedData);
-            } else {
-                _this.filteredData = _this.measureData;
-                _this.draw(_this.raw_data);
-            }
-        });
-
-        //Customize baseline control.
-        var baselineSelect = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(f) {
-                return f.option === 'x_params_visits';
-            })
-            .select('select');
-        baselineSelect
-            .selectAll('option')
-            .filter(function(f) {
-                return _this.config.x_params.visits.indexOf(f) > -1;
-            })
-            .attr('selected', 'selected');
-        baselineSelect.on('change', function() {
-            _this.config.x_params.visits = baselineSelect.selectAll('option:checked').data();
-
-            //Redefine preprocessed measure data and x-domain.
-            _this.raw_data = preprocessData.call(_this, _this.measureData);
-            _this.config.x.domain = d3.extent(
-                _this.raw_data.map(function(d) {
-                    return d.shiftx;
-                })
-            );
-
-            //Preprocess filtered data and redraw chart.
-            if (_this.config.filters) {
-                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
-                _this.draw(filteredPreprocessedData);
-            } else _this.draw(_this.raw_data);
-        });
-
-        //Customize comparison control.
-        var comparisonSelect = this.controls.wrap
-            .selectAll('.control-group')
-            .filter(function(f) {
-                return f.option === 'y_params_visits';
-            })
-            .select('select');
-        comparisonSelect
-            .selectAll('option')
-            .filter(function(f) {
-                return _this.config.y_params.visits.indexOf(f) > -1;
-            })
-            .attr('selected', 'selected');
-        comparisonSelect.on('change', function() {
-            _this.config.y_params.visits = comparisonSelect.selectAll('option:checked').data();
-
-            //Redefine preprocessed measure data and y-domain.
-            _this.raw_data = preprocessData.call(_this, _this.measureData);
-            _this.config.y.domain = d3.extent(
-                _this.raw_data.map(function(d) {
-                    return d.shifty;
-                })
-            );
-
-            //Preprocess filtered data and redraw chart.
-            if (_this.config.filters) {
-                var filteredPreprocessedData = preprocessData.call(_this, _this.filteredData);
-                _this.draw(filteredPreprocessedData);
-            } else _this.draw(_this.raw_data);
-        });
+        //Customize measure, baseline, and comparison controls.
+        custmoizeMeasureControl.call(this);
+        customizeBaselineControl.call(this);
+        customizeComparisonControl.call(this);
 
         //Create custom filters.
         if (this.config.filters) addFilters(this);
@@ -523,7 +809,7 @@
     selector - css selector for the annotation
 \------------------------------------------------------------------------------------------------*/
 
-    function updateSubjectCount(chart, selector, id_unit) {
+    function updateParticipantCount(chart, selector, id_unit) {
         //count the number of unique ids in the data set
         var totalObs = d3
             .set(
@@ -554,9 +840,17 @@
         annotation.text(currentObs + ' of ' + totalObs + units + ' shown (' + percentage + ')');
     }
 
+    function resetListing() {
+        this.listing.draw([]);
+        this.listing.wrap.style('display', 'none');
+    }
+
     function onDraw() {
         //Annotate selected and total number of participants.
-        updateSubjectCount(this, '.annote');
+        updateParticipantCount(this, '.annote');
+
+        //Reset listing.
+        resetListing.call(this);
     }
 
     function addBoxPlot(
@@ -785,7 +1079,6 @@
             .select('circle')
             .style('fill', this.config.colors[0]);
         this.wrap.select('.record-note').text('Click and drag to select points.');
-        this.detailTable.draw([]);
 
         //brushing
         function brushed() {
@@ -815,7 +1108,9 @@
             var selected_data = selected_points.data().map(function(m) {
                 return m.values.raw[0];
             });
-            this.detailTable.draw(selected_data);
+            this.listing.draw(selected_data);
+            if (selected_data.length === 0) this.listing.wrap.style('display', 'none');
+            else this.listing.wrap.style('display', 'block');
 
             //footnote
             this.wrap
@@ -878,21 +1173,23 @@
             );
     }
 
+    //polyfills
+    //settings
+    //webcharts
+    //chart callbacks
     function safetyShiftPlot(element, settings) {
-        //Merge user's settings with default settings.
-        var mergedSettings = Object.assign({}, defaultSettings, settings);
+        //settings
+        var mergedSettings = Object.assign({}, clone(defaultSettings), clone(settings));
+        var syncedSettings = syncSettings(clone(mergedSettings));
+        var syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
 
-        //Sync properties within merged settings, e.g. data mappings.
-        var syncedSettings = syncSettings(mergedSettings);
-
-        //Sync control inputs with merged settings.
-        var syncedControlInputs = syncControlInputs(controlInputs, syncedSettings);
+        //controls
         var controls = webcharts.createControls(element, {
             location: 'top',
             inputs: syncedControlInputs
         });
 
-        //Create chart.
+        //chart
         var chart = webcharts.createChart(element, syncedSettings, controls);
         chart.on('init', onInit);
         chart.on('layout', onLayout);
@@ -900,6 +1197,11 @@
         chart.on('datatransform', onDataTransform);
         chart.on('draw', onDraw);
         chart.on('resize', onResize);
+
+        //listing
+        var listing = webcharts.createTable(element, listingSettings);
+        listing.init([]);
+        chart.listing = listing;
 
         return chart;
     }

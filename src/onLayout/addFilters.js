@@ -1,4 +1,4 @@
-import preprocessData from '../preprocessData';
+import preprocessData from '../util/preprocessData';
 import { set } from 'd3';
 
 export default function addFilters(chart) {
