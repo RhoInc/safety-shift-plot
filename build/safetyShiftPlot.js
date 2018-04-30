@@ -393,6 +393,39 @@
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
+    function cleanData() {
+        var _this = this;
+
+        //Remove missing and non-numeric data.
+        var preclean = this.raw_data;
+        var clean = this.raw_data.filter(function(d) {
+            return /^-?[0-9.]+$/.test(d[_this.config.value_col]);
+        });
+        var nPreclean = preclean.length;
+        var nClean = clean.length;
+        var nRemoved = nPreclean - nClean;
+
+        //Warn user of removed records.
+        if (nRemoved > 0)
+            console.warn(
+                nRemoved +
+                    ' missing or non-numeric result' +
+                    (nRemoved > 1 ? 's have' : ' has') +
+                    ' been removed.'
+            );
+
+        //Preserve cleaned data.
+        this.initial_data = clean;
+    }
+
+    function addVariables() {
+        var _this = this;
+
+        this.initial_data.forEach(function(d) {
+            d[_this.config.measure_col] = d[_this.config.measure_col].trim();
+        });
+    }
+
     function checkFilters() {
         var _this = this;
 
@@ -422,6 +455,44 @@
 
                 return variableExists && nLevels > 1;
             });
+    }
+
+    function getMeasures() {
+        var _this = this;
+
+        this.measures = d3
+            .set(
+                this.initial_data.map(function(d) {
+                    return d[_this.config.measure_col];
+                })
+            )
+            .values()
+            .sort();
+    }
+
+    function getVisits() {
+        var _this = this;
+
+        this.visits = d3
+            .set(
+                this.initial_data.map(function(d) {
+                    return d[_this.config.time_col];
+                })
+            )
+            .values()
+            .sort();
+    }
+
+    function updateControlInputs() {
+        this.controls.config.inputs.find(function(input) {
+            return input.option === 'measure';
+        }).values = this.measures;
+        this.controls.config.inputs.find(function(input) {
+            return input.option === 'x_params_visits';
+        }).values = this.visits;
+        this.controls.config.inputs.find(function(input) {
+            return input.option === 'y_params_visits';
+        }).values = this.visits;
     }
 
     function preprocessData(rawData) {
@@ -516,57 +587,39 @@
     function onInit() {
         var _this = this;
 
-        var config = this.config;
+        // 1. Remove invalid data.
+        cleanData.call(this);
 
-        // Remove filters for variables with 0 or 1 levels
+        // 2. Add/edit variables.
+        addVariables.call(this);
+
+        // 3a Check filters against data.
         checkFilters.call(this);
-        this.allData = this.raw_data;
-        this.allData.forEach(function(d) {
-            d[config.measure_col] = d[config.measure_col].trim();
-        });
 
-        //Get list of numeric measures.
-        this.config.measures = d3
-            .set(
-                this.allData.map(function(d) {
-                    return d[config.measure_col];
-                })
-            )
-            .values()
-            .filter(function(measure) {
-                var measureValues = _this.allData
-                    .filter(function(d) {
-                        return d[config.measure_col] === measure;
-                    })
-                    .map(function(d) {
-                        return { value: d[config.value_col] };
-                    });
+        // 3b Get list of measures.
+        getMeasures.call(this);
 
-                return webcharts.dataOps.getValType(measureValues, 'value') === 'continuous';
-            });
-        this.config.measure = this.config.measure || this.config.measures[0];
+        // 3c Get list of visits.
+        getVisits.call(this);
 
-        //Get list of visits.
-        this.config.visits = d3
-            .set(
-                this.allData.map(function(d) {
-                    return d[config.time_col];
-                })
-            )
-            .values()
-            .filter(function(d) {
-                return !!d;
-            })
-            .sort(webcharts.dataOps.naturalSorter);
-        this.config.x_params.visits = this.config.x_params.visits || [this.config.visits[0]]; // set baseline visit(s)
-        this.config.y_params.visits = this.config.y_params.visits || this.config.visits.slice(1); // set comparison visit(s)
+        // 4. Update control inputs.
+        updateControlInputs.call(this);
 
-        //Define initial shift plot data.
-        this.measureData = this.allData.filter(function(d) {
+        //Set initial measure.
+        this.config.measure = this.config.measure || this.measures[0];
+
+        //Set baseline and comparison visits.
+        this.config.x_params.visits = this.config.x_params.visits || [this.visits[0]];
+        this.config.y_params.visits = this.config.y_params.visits || this.visits.slice(1);
+
+        //Filter raw data on initial measure and derive baseline/comparison data.
+        this.measureData = this.initial_data.filter(function(d) {
             return d[_this.config.measure_col] === _this.config.measure;
-        }); // raw data for a specific measure
+        });
         this.filteredData = this.measureData; // filtered data placeholder
         this.raw_data = preprocessData.call(this, this.measureData); // preprocessed measure data
+
+        //Define initial domains.
         this.config.x.domain = d3.extent(
             this.raw_data.map(function(d) {
                 return d.shiftx;
@@ -592,7 +645,7 @@
             _this.config.measure = measureSelect.select('option:checked').property('text');
 
             //Redefine raw and preprocessed measure data, x-domain, and y-domain.
-            _this.measureData = _this.allData.filter(function(d) {
+            _this.measureData = _this.initial_data.filter(function(d) {
                 return d[_this.config.measure_col] === _this.config.measure;
             });
             _this.raw_data = preprocessData.call(_this, _this.measureData);
@@ -701,7 +754,7 @@
             //Capture distinct [filter.value_col] values.
             filter.values = d3
                 .set(
-                    chart.allData.map(function(d) {
+                    chart.initial_data.map(function(d) {
                         return d[filter.value_col];
                     })
                 )
@@ -766,19 +819,6 @@
             .attr('class', 'record-note')
             .text('Click and drag to select points');
 
-        //Update the dropdown options
-        this.controls.config.inputs.filter(function(input) {
-            return input.option === 'measure';
-        })[0].values = this.config.measures;
-        this.controls.config.inputs.filter(function(input) {
-            return input.option === 'x_params_visits';
-        })[0].values = this.config.visits;
-        this.controls.config.inputs.filter(function(input) {
-            return input.option === 'y_params_visits';
-        })[0].values = this.config.visits;
-        //Force controls to be redrawn.
-        this.controls.layout();
-
         //Customize measure, baseline, and comparison controls.
         custmoizeMeasureControl.call(this);
         customizeBaselineControl.call(this);
@@ -813,7 +853,7 @@
         //count the number of unique ids in the data set
         var totalObs = d3
             .set(
-                chart.allData.map(function(d) {
+                chart.initial_data.map(function(d) {
                     return d[chart.config.id_col];
                 })
             )
@@ -1046,7 +1086,7 @@
         //get list of visits
         var possibleVisits = d3
             .set(
-                this.allData
+                this.initial_data
                     .filter(function(f) {
                         return f[_this.config.measure_col] === _this.config.measure;
                     })

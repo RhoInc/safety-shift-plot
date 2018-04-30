@@ -40,7 +40,7 @@ export default function onResize() {
 
     //get list of visits
     var possibleVisits = set(
-        this.allData
+        this.initial_data
             .filter(f => f[this.config.measure_col] === this.config.measure)
             .map(d => d[this.config.time_col])
     )

@@ -4,7 +4,7 @@ import { set } from 'd3';
 export default function addFilters(chart) {
     chart.config.filters.forEach(filter => {
         //Capture distinct [filter.value_col] values.
-        filter.values = set(chart.allData.map(d => d[filter.value_col])).values();
+        filter.values = set(chart.initial_data.map(d => d[filter.value_col])).values();
         filter.value = 'All';
 
         //Attach filter to the DOM.

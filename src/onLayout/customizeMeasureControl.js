@@ -10,7 +10,7 @@ export default function custmoizeMeasureControl() {
         this.config.measure = measureSelect.select('option:checked').property('text');
 
         //Redefine raw and preprocessed measure data, x-domain, and y-domain.
-        this.measureData = this.allData.filter(
+        this.measureData = this.initial_data.filter(
             d => d[this.config.measure_col] === this.config.measure
         );
         this.raw_data = preprocessData.call(this, this.measureData);
