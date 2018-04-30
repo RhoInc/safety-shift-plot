@@ -1,16 +1,15 @@
-export default {
-    //Addition settings for this template
+export const rendererSpecificSettings = {
     id_col: 'USUBJID',
-    time_col: 'VISITN',
+    time_col: 'VISIT',
     measure_col: 'TEST',
     value_col: 'STRESN',
     start_value: null,
     x_params: { visits: null, stat: 'mean' },
     y_params: { visits: null, stat: 'mean' },
-    filters: null,
-    measure: null, // set in syncSettings()
+    filters: null
+};
 
-    //Standard webcharts settings
+export const webchartsSettings = {
     x: {
         column: 'shiftx',
         type: 'linear',
@@ -42,6 +41,8 @@ export default {
     margin: { right: 25, top: 25 },
     aspect: 1
 };
+
+export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 // Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
