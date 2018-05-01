@@ -1,6 +1,10 @@
-import updateSubjectCount from './util/updateSubjectCount';
+import updateParticipantCount from './onDraw/updateParticipantCount';
+import reset from './onDraw/reset';
 
 export default function onDraw() {
     //Annotate selected and total number of participants.
-    updateSubjectCount(this, '.annote');
+    updateParticipantCount(this, '.annote');
+
+    //Reset things.
+    reset.call(this);
 }

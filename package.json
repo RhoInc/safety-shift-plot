@@ -1,6 +1,6 @@
 {
   "name": "safety-shift-plot",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "description": "Chart showing change in lab measures, vital signs and other related measures during the course of a clinical trial.",
   "main": "./build/safetyShiftPlot.js",
   "module": "./src/wrapper.js",
@@ -11,11 +11,13 @@
     "webcharts": "^1.10"
   },
   "scripts": {
-    "build": "npm run bundle && npm run format",
+    "build": "npm run bundle && npm run format && npm run test-page && npm run build-md",
+    "build-md": "node ./scripts/configuration-markdown.js",
     "bundle": "rollup -c",
     "format": "npm run format-src && npm run format-bundle",
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
-    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./build/*.js",
+    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./build/safetyShiftPlot.js",
+    "test-page": "start chrome ./build/test-page/index.html && start firefox ./build/test-page/index.html && start iexplore file://%CD%/build/test-page/index.html",
     "watch": "rollup -c -w"
   },
   "devDependencies": {

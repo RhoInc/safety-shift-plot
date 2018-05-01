@@ -1,16 +1,17 @@
-export default {
-    //Addition settings for this template
+export const rendererSpecificSettings = {
     id_col: 'USUBJID',
     time_col: 'VISITN',
+    visit_col: 'VISIT',
+    visit_order_col: 'VISITNUM',
     measure_col: 'TEST',
     value_col: 'STRESN',
     start_value: null,
     x_params: { visits: null, stat: 'mean' },
     y_params: { visits: null, stat: 'mean' },
-    filters: null,
-    measure: null, // set in syncSettings()
+    filters: null
+};
 
-    //Standard webcharts settings
+export const webchartsSettings = {
     x: {
         column: 'shiftx',
         type: 'linear',
@@ -43,6 +44,8 @@ export default {
     aspect: 1
 };
 
+export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
+
 // Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
     settings.measure = settings.start_value;
@@ -73,19 +76,28 @@ export const controlInputs = [
 // Map values from settings to control inputs
 export function syncControlInputs(controlInputs, settings) {
     //Define filter objects.
-    if (settings.filters) {
-        settings.filters.forEach((d, i) => {
-            d.type = 'subsetter';
-            d.value_col = d.value_col ? d.value_col : d;
-            d.label = d.label ? d.label : d.value_col ? d.value_col : d;
+    if (Array.isArray(settings.filters) && settings.filters.length)
+        settings.filters = settings.filters.map(filter => {
+            const filterObject = {
+                value_col: filter.value_col || filter
+            };
+            filterObject.label = filter.label || filterObject.value_col;
+            filterObject.type = 'subsetter';
+
+            if (filter instanceof Object) Object.assign(filterObject, filter);
+
+            return filterObject;
         });
-    }
+    else delete settings.filters;
 
     return controlInputs;
 }
 
-// Default Settings for custom linked table
-export const tableSettings = {
+export const listingSettings = {
     cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
-    headers: ['Subject ID', 'Baseline Value', 'Comparison Value', 'Change', 'Percent Change']
+    headers: ['Participant ID', 'Baseline', 'Comparison', 'Change', 'Percent Change'],
+    searchable: false,
+    sortable: true,
+    pagination: false,
+    exportable: true
 };
