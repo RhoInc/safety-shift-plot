@@ -11,9 +11,6 @@
         // Must be writable: true, enumerable: false, configurable: true
         Object.defineProperty(Object, 'assign', {
             value: function assign(target, varArgs) {
-                // .length of function is 2
-                'use strict';
-
                 if (target == null) {
                     // TypeError if undefined or null
                     throw new TypeError('Cannot convert undefined or null to object');
@@ -247,122 +244,6 @@
                       ? 'symbol'
                       : typeof obj;
               };
-
-    var asyncGenerator = (function() {
-        function AwaitValue(value) {
-            this.value = value;
-        }
-
-        function AsyncGenerator(gen) {
-            var front, back;
-
-            function send(key, arg) {
-                return new Promise(function(resolve, reject) {
-                    var request = {
-                        key: key,
-                        arg: arg,
-                        resolve: resolve,
-                        reject: reject,
-                        next: null
-                    };
-
-                    if (back) {
-                        back = back.next = request;
-                    } else {
-                        front = back = request;
-                        resume(key, arg);
-                    }
-                });
-            }
-
-            function resume(key, arg) {
-                try {
-                    var result = gen[key](arg);
-                    var value = result.value;
-
-                    if (value instanceof AwaitValue) {
-                        Promise.resolve(value.value).then(
-                            function(arg) {
-                                resume('next', arg);
-                            },
-                            function(arg) {
-                                resume('throw', arg);
-                            }
-                        );
-                    } else {
-                        settle(result.done ? 'return' : 'normal', result.value);
-                    }
-                } catch (err) {
-                    settle('throw', err);
-                }
-            }
-
-            function settle(type, value) {
-                switch (type) {
-                    case 'return':
-                        front.resolve({
-                            value: value,
-                            done: true
-                        });
-                        break;
-
-                    case 'throw':
-                        front.reject(value);
-                        break;
-
-                    default:
-                        front.resolve({
-                            value: value,
-                            done: false
-                        });
-                        break;
-                }
-
-                front = front.next;
-
-                if (front) {
-                    resume(front.key, front.arg);
-                } else {
-                    back = null;
-                }
-            }
-
-            this._invoke = send;
-
-            if (typeof gen.return !== 'function') {
-                this.return = undefined;
-            }
-        }
-
-        if (typeof Symbol === 'function' && Symbol.asyncIterator) {
-            AsyncGenerator.prototype[Symbol.asyncIterator] = function() {
-                return this;
-            };
-        }
-
-        AsyncGenerator.prototype.next = function(arg) {
-            return this._invoke('next', arg);
-        };
-
-        AsyncGenerator.prototype.throw = function(arg) {
-            return this._invoke('throw', arg);
-        };
-
-        AsyncGenerator.prototype.return = function(arg) {
-            return this._invoke('return', arg);
-        };
-
-        return {
-            wrap: function(fn) {
-                return function() {
-                    return new AsyncGenerator(fn.apply(this, arguments));
-                };
-            },
-            await: function(value) {
-                return new AwaitValue(value);
-            }
-        };
-    })();
 
     function clone(obj) {
         var copy;
@@ -1030,15 +911,15 @@
     function onDataTransform() {}
 
     /*------------------------------------------------------------------------------------------------\
-  Annotate number of participants based on current filters, number of participants in all, and
-  the corresponding percentage.
+      Annotate number of participants based on current filters, number of participants in all, and
+      the corresponding percentage.
 
-  Inputs:
+      Inputs:
 
-    chart - a webcharts chart object
-    id_unit - a text string to label the units in the annotation (default = 'participants')
-    selector - css selector for the annotation
-\------------------------------------------------------------------------------------------------*/
+        chart - a webcharts chart object
+        id_unit - a text string to label the units in the annotation (default = 'participants')
+        selector - css selector for the annotation
+    \------------------------------------------------------------------------------------------------*/
 
     function updateParticipantCount(chart, selector, id_unit) {
         //count the number of unique ids in the data set
@@ -1096,7 +977,7 @@
     }
 
     function drawBoxPlot(
-        svg$$1,
+        svg,
         results,
         height,
         width,
@@ -1133,12 +1014,12 @@
             probs[i] = d3.quantile(results, probs[i]);
         }
 
-        var boxplot = svg$$1
+        var boxplot = svg
             .append('g')
             .attr('class', 'boxplot')
             .datum({ values: results, probs: probs });
 
-        //set bar width variable
+        //draw rectangle from q1 to q3
         var box_x = horizontal ? x(0.5 - boxPlotWidth / 2) : x(probs[1]);
         var box_width = horizontal
             ? x(0.5 + boxPlotWidth / 2) - x(0.5 - boxPlotWidth / 2)
@@ -1314,7 +1195,7 @@
         function brushed() {
             var _this = this;
 
-            var extent$$1 = brush.extent();
+            var extent = brush.extent();
             var points = this.svg.selectAll('g.point').classed('selected', false);
 
             points.select('circle').attr('fill-opacity', 0);
@@ -1324,10 +1205,10 @@
                     var cx = _this.x(+d.values.x);
                     var cy = _this.y(+d.values.y);
                     return (
-                        extent$$1[0][0] <= cx &&
-                        cx <= extent$$1[1][0] &&
-                        extent$$1[0][1] <= cy &&
-                        cy <= extent$$1[1][1]
+                        extent[0][0] <= cx &&
+                        cx <= extent[1][0] &&
+                        extent[0][1] <= cy &&
+                        cy <= extent[1][1]
                     );
                 })
                 .classed('selected', true)
@@ -1435,10 +1316,7 @@
     }
 
     //polyfills
-    //settings
-    //layout and styles
-    //webcharts
-    //chart callbacks
+
     function safetyShiftPlot(element, settings) {
         //settings
         if (settings.time_col && !settings.visit_col) settings.visit_col = settings.time_col; // prevent breaking backwards compatibility
