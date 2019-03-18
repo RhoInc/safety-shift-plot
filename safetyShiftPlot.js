@@ -8,7 +8,6 @@
     'use strict';
 
     if (typeof Object.assign != 'function') {
-        // Must be writable: true, enumerable: false, configurable: true
         Object.defineProperty(Object, 'assign', {
             value: function assign(target, varArgs) {
                 if (target == null) {
@@ -82,7 +81,6 @@
             }
         });
     }
-
     if (!Array.prototype.findIndex) {
         Object.defineProperty(Array.prototype, 'findIndex', {
             value: function value(predicate) {
@@ -127,110 +125,6 @@
         });
     }
 
-    var rendererSpecificSettings = {
-        id_col: 'USUBJID',
-        time_col: 'VISITN',
-        visit_col: 'VISIT',
-        visit_order_col: 'VISITNUM',
-        measure_col: 'TEST',
-        value_col: 'STRESN',
-        start_value: null,
-        x_params: { visits: null, stat: 'mean' },
-        y_params: { visits: null, stat: 'mean' },
-        filters: null
-    };
-
-    var webchartsSettings = {
-        x: {
-            column: 'shiftx',
-            type: 'linear',
-            label: 'Baseline Value',
-            format: '0.2f'
-        },
-        y: {
-            column: 'shifty',
-            type: 'linear',
-            label: 'Comparison Value',
-            behavior: 'flex',
-            format: '0.2f'
-        },
-        marks: [
-            {
-                type: 'circle',
-                per: ['key'],
-                radius: 4,
-                attributes: {
-                    'stroke-width': 0.5,
-                    'fill-opacity': 0.8
-                },
-                tooltip:
-                    'Subject ID: [key]\nBaseline: [shiftx]\nComparison: [shifty]\nChange: [chg]\nPercent Change: [pchg]'
-            }
-        ],
-        gridlines: 'xy',
-        resizable: false,
-        margin: { right: 25, top: 25 },
-        aspect: 1
-    };
-
-    var defaultSettings = Object.assign({}, rendererSpecificSettings, webchartsSettings);
-
-    // Replicate settings in multiple places in the settings object
-    function syncSettings(settings) {
-        settings.measure = settings.start_value;
-        return settings;
-    }
-
-    // Default Control objects
-    var controlInputs = [
-        { type: 'dropdown', values: [], label: 'Measure', option: 'measure', require: true },
-        {
-            type: 'dropdown',
-            values: [],
-            label: 'Baseline visit(s)',
-            option: 'x_params_visits',
-            require: true,
-            multiple: true
-        },
-        {
-            type: 'dropdown',
-            values: [],
-            label: 'Comparison visit(s)',
-            option: 'y_params_visits',
-            require: true,
-            multiple: true
-        }
-    ];
-
-    // Map values from settings to control inputs
-    function syncControlInputs(controlInputs, settings) {
-        //Define filter objects.
-        if (Array.isArray(settings.filters) && settings.filters.length)
-            settings.filters = settings.filters.map(function(filter) {
-                var filterObject = {
-                    value_col: filter.value_col || filter
-                };
-                filterObject.label = filter.label || filterObject.value_col;
-                filterObject.type = 'subsetter';
-
-                if (filter instanceof Object) Object.assign(filterObject, filter);
-
-                return filterObject;
-            });
-        else delete settings.filters;
-
-        return controlInputs;
-    }
-
-    var listingSettings = {
-        cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
-        headers: ['Participant ID', 'Baseline', 'Comparison', 'Change', 'Percent Change'],
-        searchable: false,
-        sortable: true,
-        pagination: false,
-        exportable: true
-    };
-
     var _typeof =
         typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
             ? function(obj) {
@@ -244,41 +138,6 @@
                       ? 'symbol'
                       : typeof obj;
               };
-
-    function clone(obj) {
-        var copy;
-
-        //boolean, number, string, null, undefined
-        if ('object' != (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) || null == obj)
-            return obj;
-
-        //date
-        if (obj instanceof Date) {
-            copy = new Date();
-            copy.setTime(obj.getTime());
-            return copy;
-        }
-
-        //array
-        if (obj instanceof Array) {
-            copy = [];
-            for (var i = 0, len = obj.length; i < len; i++) {
-                copy[i] = clone(obj[i]);
-            }
-            return copy;
-        }
-
-        //object
-        if (obj instanceof Object) {
-            copy = {};
-            for (var attr in obj) {
-                if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
-            }
-            return copy;
-        }
-
-        throw new Error('Unable to copy [obj]! Its type is not supported.');
-    }
 
     var isMergeableObject = function isMergeableObject(value) {
         return isNonNullObject(value) && !isSpecial(value);
@@ -377,6 +236,129 @@
     };
 
     var deepmerge_1 = deepmerge;
+
+    function rendererSettings() {
+        return {
+            id_col: 'USUBJID',
+            time_col: 'VISITN',
+            visit_col: 'VISIT',
+            visit_order_col: 'VISITNUM',
+            measure_col: 'TEST',
+            value_col: 'STRESN',
+            start_value: null,
+            x_params: { visits: null, stat: 'mean' },
+            y_params: { visits: null, stat: 'mean' },
+            filters: null
+        };
+    }
+
+    function chartSettings() {
+        return {
+            x: {
+                column: 'shiftx',
+                type: 'linear',
+                label: 'Baseline Value',
+                format: '0.2f'
+            },
+            y: {
+                column: 'shifty',
+                type: 'linear',
+                label: 'Comparison Value',
+                behavior: 'flex',
+                format: '0.2f'
+            },
+            marks: [
+                {
+                    type: 'circle',
+                    per: ['key'],
+                    radius: 4,
+                    attributes: {
+                        'stroke-width': 0.5,
+                        'fill-opacity': 0.8
+                    },
+                    tooltip:
+                        'Subject ID: [key]\nBaseline: [shiftx]\nComparison: [shifty]\nChange: [chg]\nPercent Change: [pchg]'
+                }
+            ],
+            gridlines: 'xy',
+            resizable: false,
+            margin: { right: 25, top: 25 },
+            aspect: 1
+        };
+    }
+
+    function listingSettings() {
+        return {
+            cols: ['key', 'shiftx', 'shifty', 'chg', 'pchg'],
+            headers: ['Participant ID', 'Baseline', 'Comparison', 'Change', 'Percent Change'],
+            searchable: false,
+            sortable: true,
+            pagination: false,
+            exportable: true
+        };
+    }
+
+    function syncSettings(settings) {
+        settings.measure = settings.start_value;
+        return settings;
+    }
+
+    function controlInputs() {
+        return [
+            {
+                type: 'dropdown',
+                values: [],
+                label: 'Measure',
+                option: 'measure',
+                require: true
+            },
+            {
+                type: 'dropdown',
+                values: [],
+                label: 'Baseline visit(s)',
+                option: 'x_params_visits',
+                require: true,
+                multiple: true
+            },
+            {
+                type: 'dropdown',
+                values: [],
+                label: 'Comparison visit(s)',
+                option: 'y_params_visits',
+                require: true,
+                multiple: true
+            }
+        ];
+    }
+
+    function syncControlInputs(controlInputs, settings) {
+        //Define filter objects.
+        if (Array.isArray(settings.filters) && settings.filters.length)
+            settings.filters = settings.filters.map(function(filter) {
+                var filterObject = {
+                    value_col: filter.value_col || filter
+                };
+                filterObject.label = filter.label || filterObject.value_col;
+                filterObject.type = 'subsetter';
+
+                if (filter instanceof Object) Object.assign(filterObject, filter);
+
+                return filterObject;
+            });
+        else delete settings.filters;
+
+        return controlInputs;
+    }
+
+    var configuration = {
+        rendererSettings: rendererSettings,
+        controlInputs: controlInputs,
+        chartSettings: chartSettings,
+        listingSettings: listingSettings,
+        defaultSettings: Object.assign({}, rendererSettings(), chartSettings()),
+        syncSettings: syncSettings,
+        syncControlInputs: syncControlInputs
+    };
 
     function defineLayout(element) {
         var container = d3.select(element);
@@ -590,6 +572,7 @@
         }
 
         function setVal(e, params) {
+            console.log(params);
             var visits = e.values.filter(function(f) {
                 return params.visits.indexOf(f.key) !== -1;
             });
@@ -1315,24 +1298,37 @@
         addTooltipsToAxisLabels.call(this);
     }
 
-    //polyfills
+    function onDestroy() {}
+
+    var callbacks = {
+        onInit: onInit,
+        onLayout: onLayout,
+        onPreprocess: onPreprocess,
+        onDatatransform: onDataTransform,
+        onDraw: onDraw,
+        onResize: onResize,
+        onDestroy: onDestroy
+    };
 
     function safetyShiftPlot(element, settings) {
-        //settings
-        if (settings.time_col && !settings.visit_col) settings.visit_col = settings.time_col; // prevent breaking backwards compatibility
-        var mergedSettings = deepmerge_1(defaultSettings, settings, {
+        //Merge user settings with default settings and sync.
+        if (settings.time_col && !settings.visit_col) settings.visit_col = settings.time_col; // maintain backwards compatibility
+        var mergedSettings = deepmerge_1(configuration.defaultSettings, settings, {
             arrayMerge: function arrayMerge(destination, source) {
                 return source;
             }
-        });
-        var syncedSettings = syncSettings(clone(mergedSettings));
-        var syncedControlInputs = syncControlInputs(clone(controlInputs), syncedSettings);
+        }); // merge user settings onto default settings
+        var syncedSettings = configuration.syncSettings(mergedSettings); // sync properties within merged settings, e.g. data mappings.
+        var syncedControlInputs = configuration.syncControlInputs(
+            configuration.controlInputs(),
+            syncedSettings
+        ); //Sync merged settings with controls.
 
         //layout and styles
         defineLayout(element);
         defineStyles();
 
-        //controls
+        //Define controls.
         var controls = webcharts.createControls(
             document.querySelector(element).querySelector('#ssp-controls'),
             {
@@ -1341,26 +1337,24 @@
             }
         );
 
-        //chart
+        //Define chart.
         var chart = webcharts.createChart(
             document.querySelector(element).querySelector('#ssp-chart'),
             syncedSettings,
             controls
         );
-        chart.on('init', onInit);
-        chart.on('layout', onLayout);
-        chart.on('preprocess', onPreprocess);
-        chart.on('datatransform', onDataTransform);
-        chart.on('draw', onDraw);
-        chart.on('resize', onResize);
 
-        //listing
+        //Attach callbacks to chart.
+        for (var callback in callbacks) {
+            chart.on(callback.substring(2).toLowerCase(), callbacks[callback]);
+        } //Define listing.
         var listing = webcharts.createTable(
             document.querySelector(element).querySelector('#ssp-listing'),
-            listingSettings
+            configuration.listingSettings()
         );
         listing.init([]);
         chart.listing = listing;
+        listing.chart = chart;
 
         return chart;
     }

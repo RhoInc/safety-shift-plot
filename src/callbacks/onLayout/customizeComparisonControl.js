@@ -1,4 +1,4 @@
-import preprocessData from '../util/preprocessData';
+import preprocessData from '../../util/preprocessData';
 import { extent } from 'd3';
 
 export default function customizeComparisonControl() {

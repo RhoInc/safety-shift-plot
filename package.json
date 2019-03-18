@@ -1,9 +1,9 @@
 {
   "name": "safety-shift-plot",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Chart showing change in lab measures, vital signs and other related measures during the course of a clinical trial.",
-  "main": "./build/safetyShiftPlot.js",
-  "module": "./src/wrapper.js",
+  "module": "./src/index.js",
+  "main": "./safetyShiftPlot.js",
   "author": "Rho, Inc.",
   "license": "MIT",
   "dependencies": {
@@ -11,18 +11,21 @@
     "webcharts": "^1.10"
   },
   "scripts": {
-    "build": "npm audit fix && npm run bundle && npm run format && npm run build-md",
-    "build-md": "node ./scripts/configuration-markdown.js",
+    "build": "npm audit fix && npm run bundle && npm run format && npm run build-wiki && npm run check-settings-schema",
+    "build-configuration-wiki": "node ./scripts/build-configuration-wiki.js",
+    "build-data-guidelines-wiki": "node ./scripts/build-data-guidelines-wiki.js",
+    "build-wiki": "npm run build-configuration-wiki && npm run build-data-guidelines-wiki",
     "bundle": "rollup -c",
+    "check-settings-schema": "node ./scripts/check-settings-schema.js",
     "format": "npm run format-src && npm run format-bundle",
-    "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/*.js\"",
-    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./build/safetyShiftPlot.js",
+    "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write \"./src/**/!(*layout|*styles).js\"",
+    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write ./safetyShiftPlot.js",
     "test-page": "start chrome ./test-page/index.html && start firefox ./test-page/index.html && start iexplore file://%CD%/test-page/index.html",
     "watch": "rollup -c -w"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.6.0",
+    "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
     "prettier": "^1.7.4",
     "rollup": "^0.66.6",

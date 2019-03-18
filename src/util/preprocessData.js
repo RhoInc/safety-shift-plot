@@ -24,6 +24,7 @@ export default function preprocessData(rawData) {
     }
 
     function setVal(e, params) {
+        console.log(params);
         var visits = e.values.filter(function(f) {
             return params.visits.indexOf(f.key) !== -1;
         });
