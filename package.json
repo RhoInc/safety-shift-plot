@@ -1,6 +1,6 @@
 {
   "name": "safety-shift-plot",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Chart showing change in lab measures, vital signs and other related measures during the course of a clinical trial.",
   "module": "./src/index.js",
   "main": "./safetyShiftPlot.js",
