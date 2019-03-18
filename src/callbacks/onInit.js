@@ -4,7 +4,7 @@ import checkFilters from './onInit/checkFilters';
 import getMeasures from './onInit/getMeasures';
 import getVisits from './onInit/getVisits';
 import updateControlInputs from './onInit/updateControlInputs';
-import preprocessData from './util/preprocessData';
+import preprocessData from '../util/preprocessData';
 import { extent } from 'd3';
 
 export default function onInit() {
