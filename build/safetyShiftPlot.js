@@ -2,8 +2,8 @@
     typeof exports === 'object' && typeof module !== 'undefined'
         ? (module.exports = factory(require('d3'), require('webcharts')))
         : typeof define === 'function' && define.amd
-            ? define(['d3', 'webcharts'], factory)
-            : (global.safetyShiftPlot = factory(global.d3, global.webCharts));
+        ? define(['d3', 'webcharts'], factory)
+        : (global.safetyShiftPlot = factory(global.d3, global.webCharts));
 })(this, function(d3, webcharts) {
     'use strict';
 
@@ -537,7 +537,13 @@
                     var diff = aOrder - bOrder;
                     return diff
                         ? diff
-                        : aOrder < bOrder ? -1 : aOrder > bOrder ? 1 : aVisit < bVisit ? -1 : 1;
+                        : aOrder < bOrder
+                        ? -1
+                        : aOrder > bOrder
+                        ? 1
+                        : aVisit < bVisit
+                        ? -1
+                        : 1;
                 })
                 .map(function(visit) {
                     return visit.split('||')[0];
@@ -1132,12 +1138,10 @@
         });
         var ybox = this.svg.append('g').attr('class', 'yMargin');
         drawBoxPlot(ybox, yValues, this.plot_height, 1, this.y_dom, 10, '#bbb', 'white');
-        ybox
-            .select('g.boxplot')
-            .attr(
-                'transform',
-                'translate(' + (this.plot_width + this.config.margin.right / 2) + ',0)'
-            );
+        ybox.select('g.boxplot').attr(
+            'transform',
+            'translate(' + (this.plot_width + this.config.margin.right / 2) + ',0)'
+        );
 
         //X-axis box plot
         var xValues = this.current_data.map(function(d) {
@@ -1156,9 +1160,10 @@
             '0.2f', //format
             false // horizontal?
         );
-        xbox
-            .select('g.boxplot')
-            .attr('transform', 'translate(0,' + -(this.config.margin.top / 2) + ')');
+        xbox.select('g.boxplot').attr(
+            'transform',
+            'translate(0,' + -(this.config.margin.top / 2) + ')'
+        );
     }
 
     function listVisits() {
