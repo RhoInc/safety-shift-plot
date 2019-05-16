@@ -7,6 +7,7 @@ d3.csv(
         const ssp = safetyShiftPlot(
             '#container', // element
             {
+              filters:"ARM"
             } // settings
         );
         ssp.init(data);
