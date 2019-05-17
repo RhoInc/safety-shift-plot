@@ -21,7 +21,13 @@ export default function getVisits() {
                 const diff = aOrder - bOrder;
                 return diff
                     ? diff
-                    : aOrder < bOrder ? -1 : aOrder > bOrder ? 1 : aVisit < bVisit ? -1 : 1;
+                    : aOrder < bOrder
+                    ? -1
+                    : aOrder > bOrder
+                    ? 1
+                    : aVisit < bVisit
+                    ? -1
+                    : 1;
             })
             .map(visit => visit.split('||')[0]);
     else

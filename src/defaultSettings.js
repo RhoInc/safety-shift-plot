@@ -48,6 +48,9 @@ export default Object.assign({}, rendererSpecificSettings, webchartsSettings);
 
 // Replicate settings in multiple places in the settings object
 export function syncSettings(settings) {
+    if (!(settings.filters instanceof Array))
+        settings.filters = typeof settings.filters === 'string' ? [settings.filters] : [];
+
     settings.measure = settings.start_value;
     return settings;
 }

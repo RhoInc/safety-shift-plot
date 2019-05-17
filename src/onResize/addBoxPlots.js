@@ -7,9 +7,10 @@ export default function addBoxPlots() {
     });
     var ybox = this.svg.append('g').attr('class', 'yMargin');
     drawBoxPlot(ybox, yValues, this.plot_height, 1, this.y_dom, 10, '#bbb', 'white');
-    ybox
-        .select('g.boxplot')
-        .attr('transform', 'translate(' + (this.plot_width + this.config.margin.right / 2) + ',0)');
+    ybox.select('g.boxplot').attr(
+        'transform',
+        'translate(' + (this.plot_width + this.config.margin.right / 2) + ',0)'
+    );
 
     //X-axis box plot
     var xValues = this.current_data.map(function(d) {
@@ -28,7 +29,8 @@ export default function addBoxPlots() {
         '0.2f', //format
         false // horizontal?
     );
-    xbox
-        .select('g.boxplot')
-        .attr('transform', 'translate(0,' + -(this.config.margin.top / 2) + ')');
+    xbox.select('g.boxplot').attr(
+        'transform',
+        'translate(0,' + -(this.config.margin.top / 2) + ')'
+    );
 }
