@@ -2,6 +2,8 @@
 import './polyfills/object-assign';
 import './polyfills/array-find';
 import './polyfills/array-findIndex';
+import './polyfills/customEvent';
+
 
 //settings
 import defaultSettings, {

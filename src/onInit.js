@@ -5,6 +5,8 @@ import getMeasures from './onInit/getMeasures';
 import getVisits from './onInit/getVisits';
 import updateControlInputs from './onInit/updateControlInputs';
 import preprocessData from './util/preprocessData';
+import initCustomEvents from './onInit/initCustomEvents';
+
 import { extent } from 'd3';
 
 export default function onInit() {
@@ -43,4 +45,7 @@ export default function onInit() {
     //Define initial domains.
     this.config.x.domain = extent(this.raw_data.map(d => d.shiftx));
     this.config.y.domain = extent(this.raw_data.map(d => d.shifty));
+
+    //initialize custom events
+    initCustomEvents.call(this);
 }
