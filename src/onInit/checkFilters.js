@@ -8,15 +8,11 @@ export default function checkFilters() {
 
             if (!variableExists)
                 console.warn(
-                    ` The [ ${
-                        filter.label
-                    } ] filter has been removed because the variable does not exist.`
+                    ` The [ ${filter.label} ] filter has been removed because the variable does not exist.`
                 );
             else if (nLevels < 2)
                 console.warn(
-                    `The [ ${
-                        filter.label
-                    } ] filter has been removed because the variable has only one level.`
+                    `The [ ${filter.label} ] filter has been removed because the variable has only one level.`
                 );
 
             return variableExists && nLevels > 1;
