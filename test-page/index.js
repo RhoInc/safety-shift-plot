@@ -11,5 +11,11 @@ d3.csv(
             } // settings
         );
         ssp.init(data);
+        //quick test of participantSelected event
+        ssp.wrap.on("participantsSelected",function(){
+          console.log("Participant Selected Event:")
+          console.log(d3.event.data)
+        })
+
     }
 )
